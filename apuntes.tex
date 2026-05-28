@@ -919,7 +919,7 @@ Esta propiedad permite que las matrices generadoras se puedan definir por bloque
 
 \newpage
 \section{Tema 8: Códigos Cíclicos}
-Estructura de ideales en anillos cocientes, raíces de la unidad, polinomios ciclotómicos, clases cíclicas (cosets), polinomios generadores, elementos idempotentes y descodificación porMeggit.\\
+Estructura de ideales en anillos cocientes, raíces de la unidad, polinomios ciclotómicos, clases cíclicas (cosets), polinomios generadores, elementos idempotentes y descodificación por Meggitt.\\
 Bibliografía:
 \begin{itemize}
 \item Munuera-Tena: capítulos 5, 9 y 10
@@ -938,11 +938,50 @@ R = \mathbb{F}_q[x] / \langle x^n - 1 \rangle
 \]
 Para evitar la presencia de raíces múltiples en la factorización del espacio, se exige la condición de coprimatilidad estricta $\operatorname{mcd}(n, q) = 1$.
 
-\subsection{8.2 Factorización de Xn-1 y Conjuntos Ciclotómicos}
+\subsection{8.2 Polinomios Generador y de Control: Relación y Construcción}
 
-Puesto que todo ideal en un anillo de principales es principal, cada código cíclico está unívocamente determinado por un único polinomio mónico de grado mínimo, denominado \textbf{polinomio generador} $g(x)$, el cual debe ser un divisor exacto de $x^n - 1$ en $\mathbb{F}_q[x]$. La dimensión del código resultante viene dada por $k = n - \operatorname{deg}(g(x))$.
+Como ideal del anillo principal $R$, el código cíclico $C$ está completamente determinado de forma unívoca por dos polinomios algebraicos que estructuran tanto la codificación como la verificación de errores.
 
-Para hallar los factores irreducibles de $x^n-1$ sobre el cuerpo base $\mathbb{F}_q$, extendemos el análisis a su cuerpo de escisión $\mathbb{F}_{q^m}$ (donde $n | q^m-1$). Sea $\beta$ una raíz primitiva $n$-ésima de la unidad. Las raíces del polinomio se agrupan en órbitas cerradas bajo la acción del automorfismo de Frobenius. Estas órbitas se denominan \textbf{clases o cosets ciclotómicos} módulo $n$ respecto a $q$:
+\subsubsection{8.2.1 Polinomio Generador $g(x)$}
+Es el único polinomio mónico de grado mínimo perteneciente al ideal. Obligatoriamente debe ser un divisor exacto de $x^n - 1$ en $\mathbb{F}_q[x]$. Toda palabra del código $c(x) \in C$ se construye multiplicando un polinomio de información $m(x)$ por dicho generador:
+\[
+c(x) = m(x) \cdot g(x)
+\]
+Donde la dimensión es $k = n - \operatorname{deg}(g(x))$. La matriz generadora $G$ de dimensiones $k \times n$ se obtiene de forma sistemática distribuyendo los coeficientes de $g(x) = g_0 + g_1x + \dots + g_{n-k}x^{n-k}$ mediante desplazamientos hacia la derecha:
+\[
+G = \begin{pmatrix}
+g_0 & g_1 & \dots & g_{n-k} & 0 & \dots & 0 \\
+0 & g_0 & g_1 & \dots & g_{n-k} & \dots & 0 \\
+\vdots & & \ddots & \ddots & & \ddots & \vdots \\
+0 & \dots & 0 & g_0 & g_1 & \dots & g_{n-k}
+\end{pmatrix}
+\]
+
+\subsubsection{8.2.2 Polinomio de Control $h(x)$ y Relación Fundamental}
+Dada la propiedad de divisibilidad del generador, se define el \textbf{polinomio de control} (o de comprobación de paridad) $h(x)$ mediante la relación polinómica fundamental del espacio cociente:
+\[
+x^n - 1 = g(x) \cdot h(x)
+\]
+El grado de $h(x)$ es exactamente $k$. Este polinomio actúa algebraicamente como el núcleo del código, puesto que una palabra $c(x)$ es válida si y solo si se anula bajo su control multiplicativo en el anillo:
+\[
+c(x) \in C \iff c(x) \cdot h(x) \equiv 0 \pmod{x^n - 1}
+\]
+
+\subsubsection{8.2.3 Construcción de la Matriz de Control $H$}
+A partir de los coeficientes del polinomio de control $h(x) = h_0 + h_1x + \dots + h_kx^k$, la condición de ortogonalidad matricial implica que la matriz de control $H$ de dimensiones $(n-k) \times n$ se construye disponiendo dichos coeficientes en \textbf{orden invertido} y desplazándolos de manera cíclica:
+\[
+H = \begin{pmatrix}
+h_k & h_{k-1} & \dots & h_0 & 0 & \dots & 0 \\
+0 & h_k & h_{k-1} & \dots & h_0 & \dots & 0 \\
+\vdots & & \ddots & \ddots & & \ddots & \vdots \\
+0 & \dots & 0 & h_k & h_{k-1} & \dots & h_0
+\end{pmatrix}
+\]
+Esta disposición garantiza matemáticamente que $G \cdot H^T = 0$, permitiendo verificar de forma eficiente la integridad de los vectores recibidos.
+
+\subsection{8.3 Factorización de $x^n-1$ y Conjuntos Ciclotómicos}
+
+Para hallar de forma práctica los factores irreducibles de $x^n-1$ sobre el cuerpo base $\mathbb{F}_q$, extendemos el análisis a su cuerpo de escisión $\mathbb{F}_{q^m}$ (donde $n | q^m-1$). Sea $\beta$ una raíz primitiva $n$-ésima de la unidad. Las raíces del polinomio se agrupan en órbitas cerradas bajo la acción del automorfismo de Frobenius. Estas órbitas se denominan \textbf{clases o cosets ciclotómicos} módulo $n$ respecto a $q$:
 \[
 C_j = \left\{ j, \ j\cdot q, \ j\cdot q^2, \ \dots, \ j\cdot q^{s-1} \pmod n \right\}
 \]
@@ -950,18 +989,18 @@ donde $s$ es el menor entero positivo tal que $j\cdot q^s \equiv j \pmod n$. Cad
 \[
 m_j(X) = \prod_{i \in C_j} (X - \beta^i)
 \]
-La factorización completa del espacio se obtiene seleccionando un representante minimal por cada clase diferenciada: $X^n - 1 = \prod_{j} m_j(X)$. Construir un código cíclico se reduce a elegir qué subconjunto de estos polinomios mínimos compondrán el polinomio generador $g(x)$.
+La factorización completa del espacio se obtiene seleccionando un representante minimal por cada clase diferenciada: $X^n - 1 = \prod_{j} m_j(X)$. Construir el polinomio generador $g(x)$ se reduce a elegir qué subconjunto de estos vectores de raíces mínimos compondrán el ideal del código.
 
-\subsection{8.3 Elementos Idempotentes}
+\subsection{8.4 Elementos Idempotentes}
 
 Todo código cíclico contiene un único polinomio especial $e(x) \in C$ denominado \textbf{elemento idempotente}, el cual verifica la propiedad identidad $e(x)^2 \equiv e(x) \pmod{x^n-1}$. Este polinomio actúa como el elemento identidad multiplicativo para todas las palabras del código ($e(x)c(x) = c(x)$) y es un generador alternativo del ideal: $C = \langle e(x) \rangle$.
 
-Su cálculo se realiza a partir del polinomio generador $g(x)$ y su polinomio de control asociado $h(x) = (x^n-1)/g(x)$. Como $\operatorname{mcd}(g(x), h(x)) = 1$, el algoritmo de Bézout asegura la existencia de dos polinomios $a(x), b(x)$ tales que:
+Su cálculo se realiza explotando la relación fundamental de los polinomios anteriormente definidos. Como $\operatorname{mcd}(g(x), h(x)) = 1$, el algoritmo de Bézout asegura la existencia de dos polinomios $a(x), b(x)$ tales que:
 \[
 a(x)g(x) + b(x)h(x) = 1 \implies e(x) \equiv a(x)g(x) \pmod{x^n-1}
 \]
 
-\subsection{8.4 Descodificación Cíclica: Algoritmo de Atrapamiento de Errores (Meggitt)}
+\subsection{8.5 Descodificación Cíclica: Algoritmo de Atrapamiento de Errores (Meggitt)}
 
 La estructura de ideal permite implementar sistemas de descodificación masiva mediante registros de desplazamiento con retroalimentación lineal (LFSR). Sea $r(x) = c(x) + e(x)$ el polinomio recibido. El síndrome polinómico $s(x)$ se calcula como el resto de la división euclídea de $r(x)$ entre $g(x)$:
 \[
@@ -976,10 +1015,64 @@ El algoritmo de \textbf{Error-Trapping} aprovecha la propiedad de que si $s(x)$ 
     \item Se repite la comprobación de peso. En el momento en que el peso sea menor o igual a $t$, se resta el síndrome atrapado en esa ventana temporal y se deshacen las rotaciones para restituir la palabra original.
 \end{enumerate}
 
+\subsection{8.6 Ejemplo Práctico Completo: Diseño de un Código Cíclico sobre $\mathbb{F}_2$ ($n=7$)}
+
+Para comprender de forma compacta la teoría, construiremos todos los polinomios mónicos posibles para una longitud de bloque $n = 7$ sobre el cuerpo base $\mathbb{F}_2$.
+
+\subsubsection{Paso 1: Obtención de las Clases Ciclotómicas}
+Aplicando la definición del automorfismo de Frobenius para $q=2$ y $n=7$, calculamos las órbitas multiplicativas de los elementos del anillo de enteros $\mathbb{Z}_7$:
+\begin{itemize}
+    \item Para $j=0$: $C_0 = \{0\}$
+    \item Para $j=1$: $1 \cdot 2 = 2 \pmod 7$, $2 \cdot 2 = 4 \pmod 7$, $4 \cdot 2 = 8 \equiv 1 \pmod 7$. Cerramos la órbita: $C_1 = \{1, 2, 4\}$.
+    \item Para $j=3$: $3 \cdot 2 = 6 \pmod 7$, $6 \cdot 2 = 12 \equiv 5 \pmod 7$, $5 \cdot 2 = 10 \equiv 3 \pmod 7$. Cerramos la órbita: $C_3 = \{3, 5, 6\}$.
+\end{itemize}
+Las clases obtenidas son disjuntas y su unión cubre el espacio completo: $\mathbb{Z}_7 = C_0 \cup C_1 \cup C_3$.
+
+\subsubsection{Paso 2: Asociación de Polinomios Mónicos Irreducibles}
+Cada clase ciclotómica determina de forma unívoca un factor mónico irreducible de $x^7 - 1$ sobre $\mathbb{F}_2$:
+\begin{itemize}
+    \item $C_0 \implies m_0(x) = x + 1$ (Grado igual al tamaño de la clase: 1)
+    \item $C_1 \implies m_1(x) = x^3 + x + 1$ (Grado igual al tamaño de la clase: 3)
+    \item $C_3 \implies m_3(x) = x^3 + x^2 + 1$ (Grado igual al tamaño de la clase: 3)
+\end{itemize}
+De este modo, la factorización completa en factores mónicos irreducibles del espacio es:
+\[
+x^7 - 1 = (x + 1)(x^3 + x + 1)(x^3 + x^2 + 1)
+\]
+
+\subsubsection{Paso 3: Elección del Polinomio Generador $g(x)$ y Parámetros del Código}
+Para construir un código cíclico concreto, podemos seleccionar cualquier combinación de estos factores mónicos. Supongamos que elegimos el factor de la clase $C_1$ como nuestro polinomio generador:
+\[
+g(x) = m_1(x) = x^3 + x + 1
+\]
+Como $\operatorname{deg}(g(x)) = 3$, la dimensión del código será $k = n - \operatorname{deg}(g(x)) = 7 - 3 = 4$. Obtenemos un código cíclico de parámetros $[7, 4]$.
+
+\subsubsection{Paso 4: Cálculo del Polinomio de Control $h(x)$}
+Utilizando la relación fundamental $x^n - 1 = g(x) \cdot h(x)$, calculamos el polinomio de comprobación multiplicando los factores mónicos restantes (los no seleccionados para $g(x)$):
+\[
+h(x) = \frac{x^7 - 1}{g(x)} = m_0(x) \cdot m_3(x) = (x + 1)(x^3 + x^2 + 1) = x^4 + x^3 + x^2 + 1
+\]
+
+\subsubsection{Paso 5: Construcción de las Matrices del Código $[7, 4]$}
+Distribuyendo los coeficientes de $g(x) = 1 + 1x + 0x^2 + 1x^3$ y de $h(x) = 1 + 0x + 1x^2 + 1x^3 + 1x^4$ (invirtiendo su orden en $H$), las matrices estructurales quedan definidas como:
+\[
+G = \begin{pmatrix}
+1 & 1 & 0 & 1 & 0 & 0 & 0 \\
+0 & 1 & 1 & 0 & 1 & 0 & 0 \\
+0 & 0 & 1 & 1 & 0 & 1 & 0 \\
+0 & 0 & 0 & 1 & 1 & 0 & 1
+\end{pmatrix}, \quad
+H = \begin{pmatrix}
+1 & 1 & 1 & 0 & 1 & 0 & 0 \\
+0 & 1 & 1 & 1 & 0 & 1 & 0 \\
+0 & 0 & 1 & 1 & 1 & 0 & 1
+\end{pmatrix}
+\]
+Se puede comprobar de forma directa multiplicando las matrices algebraicas que $G \cdot H^T \equiv 0 \pmod 2$.
+
 \newpage
-\hlinecolor{}
-\section{Tema 9: Códigos BCH}
-Definición de códigos BCH, diseño por raíces consecutivas, construcción de la matriz de control en el cuerpo de extensión, cota fundamental y algoritmos de descodificación PGZ y Berlekamp-Massey.\\
+\section{Tema 9: Códigos BCH (Bose-Chaudhuri-Hocquenghem)}
+Definición de códigos BCH, diseño por raíces consecutivas, relación estructural con códigos cíclicos, el conjunto total de raíces y la mini matriz de Vandermonde, cota fundamental y algoritmos de descodificación PGZ, Berlekamp-Massey y Euclides.\\
 Bibliografía:
 \begin{itemize}
 \item Munuera-Tena: capítulos 9 y 11
@@ -988,63 +1081,264 @@ Bibliografía:
 \hlinecolor{}
 \vspace{0.5cm}
 
-\subsection{9.1 Definición y Matriz de Control de Vandermonde}
+\subsection{9.1 Definición, Orden de Raíces y Propiedades Fundamentales}
 
-Los códigos Bose-Chaudhuri-Hocquenghem (BCH) son una familia de códigos cíclicos diseñados específicamente para garantizar de forma analítica una capacidad correctora predeterminada, forzando la aparición de raíces consecutivas en el polinomio generador.
+Los códigos Bose-Chaudhuri-Hocquenghem (BCH) constituyen una de las subfamilias más importantes de los \textbf{códigos cíclicos}. Su gran valor radica en que permiten diseñar el código de forma analítica para garantizar una capacidad correctora predeterminada, forzando la aparición de raíces consecutivas en su polinomio generador.
 
-Elegimos una \textbf{distancia diseñada} $\delta$. Sea $\alpha$ un elemento de orden $n$ dentro de la extensión de cuerpos $\mathbb{F}_{q^m}$. Un código BCH de longitud $n$ sobre el cuerpo base $\mathbb{F}_q$ se define como el código cíclico cuyo polinomio generador $g(x)$ tiene entre sus raíces a $\delta-1$ potencias consecutivas de $\alpha$. 
+Para construir un código BCH binario o $q$-ario de longitud $n$, trabajamos en un cuerpo de extensión $\mathbb{F}_{q^m}$ lo suficientemente grande como para albergar las raíces del polinomio $x^n - 1$. El grupo multiplicativo de este cuerpo extendido, $\mathbb{F}_{q^m}^*$, es un grupo cíclico de tamaño exactamente $q^m - 1$. Por teoría de grupos, dentro de $\mathbb{F}_{q^m}$ existirán elementos de cualquier orden $n$, siempre y cuando $n$ sea un divisor de $q^m - 1$ (con $\operatorname{mcd}(n,q)=1$). 
 
-En la práctica, $g(x)$ se construye como el mínimo común múltiplo de los polinomios mínimos asociados a las \textbf{clases ciclotómicas} de dichas potencias:
+Sea $\alpha \in \mathbb{F}_{q^m}$ un elemento de orden exacto $n$. Fijada una \textbf{distancia diseñada} $\delta \ge 2$, buscamos que el polinomio generador $g(x)$ tenga entre sus raíces a $\delta-1$ potencias consecutivas de $\alpha$:
 \[
-g(x) = \operatorname{mcm}\left\{ m_b(x), m_{b+1}(x), \dots, m_{b+\delta-2}(x) \right\}
+\alpha^b, \alpha^{b+1}, \alpha^{b+2}, \dots, \alpha^{b+\delta-2}
 \]
-donde $m_i(x) = Irr(\alpha^i, \mathbb{F}_q)$. Dado que las raíces conjugadas comparten el mismo polinomio mínimo, calcular las clases ciclotómicas reduce drásticamente el grado final de $g(x)$ y elimina redundancias.
+Para lograr esto sin introducir redundancias ni factores repetidos que deformen la estructura del ideal, identificamos cuáles son los polinomios mínimos $m_i(x) = \operatorname{Irr}(\alpha^i, \mathbb{F}_q)$ asociados a las clases ciclotómicas de dichas potencias consecutivas. El polinomio generador $g(x)$ se construye en el cuerpo base $\mathbb{F}_q[x]$ como el \textbf{producto de los polinomios mínimos irreducibles distintos} seleccionados:
+\[
+g(x) = \prod_{j \in I_{\text{distintos}}} m_j(x)
+\]
+Donde $I_{\text{distintos}}$ representa el conjunto de índices representantes de las clases ciclotómicas únicas involucradas en la racha consecutiva.
 
-Si el parámetro inicial es $b=1$, el código se clasifica como BCH en \textit{sentido estricto}. Si la longitud es máxima ($n = q^m-1$, lo que implica que $\alpha$ es un elemento primitivo de la extensión), el código es un BCH \textit{primitivo}.
+\subsection{9.2 Reparto de Polinomios, Matrices Base y Cota BCH}
 
-\subsection{9.2 Descodificación Algebraica de Códigos BCH}
+El verdadero núcleo analítico de los códigos BCH consiste en entender cómo se distribuyen los polinomios mínimos, cómo forman las matrices en el cuerpo base para la codificación práctica y cómo la evaluación geométrica de sus raíces en la extensión demuestra la distancia mínima.
 
-Sea $r(x) = c(x) + e(x)$ el polinomio recibido. Supongamos que han ocurrido $\nu \le t$ errores (donde $t = \lfloor \frac{\delta-1}{2} \rfloor$) en las posiciones desconocidas $j_1, j_2, \dots, j_\nu$. El polinomio de error se expresa como $e(x) = \sum_{l=1}^{\nu} e_{j_l} x^{j_l}$. El proceso de descodificación consta de cuatro etapas consecutivas:
+\subsubsection{9.2.1 Factorización y Reparto entre $g(x)$ y $h(x)$}
+Sabemos que el espacio completo de raíces se define por la factorización única del polinomio $x^n - 1$ como el producto de todos los polinomios mínimos distintos $m_k(x)$ asociados a las clases ciclotómicas módulo $n$ sobre $\mathbb{F}_q$.
+
+Al diseñar el código BCH, seleccionamos un subconjunto específico de estos polinomios mínimos (aquellos que garantizan la racha de potencias consecutivas de $\alpha$) y los multiplicamos para formar el polinomio generador de grado $n-k$:
+\[
+g(x) = \prod_{\text{elegidos}} m_i(x) = g_0 + g_1 x + \dots + g_{n-k} x^{n-k}
+\]
+Como consecuencia directa de la relación fundamental $x^n - 1 = g(x)h(x)$, el polinomio de control $h(x)$ de grado $k$ queda definido exactamente como el producto de todos los \textbf{polinomios mínimos que sobran} (los que no hemos incluido en $g(x)$):
+\[
+h(x) = \prod_{\text{sobrantes}} m_j(x) = h_0 + h_1 x + \dots + h_k x^k
+\]
+
+\subsubsection{9.2.2 Matrices $G$ y $H_{\text{base}}$ en el Cuerpo Base ($\mathbb{F}_q$)}
+Dado que un código BCH es estrictamente un código cíclico, su implementación práctica y construcción matricial sobre el cuerpo base se realiza de manera idéntica a la teoría general. 
+
+Con los coeficientes recién obtenidos, estructuramos la matriz generadora $G$ de dimensiones $k \times n$ desplazando los coeficientes de $g(x)$ cíclicamente hacia la derecha:
+\[
+G = \begin{pmatrix}
+g_0 & g_1 & \dots & g_{n-k} & 0 & \dots & 0 \\
+0 & g_0 & g_1 & \dots & g_{n-k} & \dots & 0 \\
+\vdots & & \ddots & \ddots & & \ddots & \vdots \\
+0 & \dots & 0 & g_0 & g_1 & \dots & g_{n-k}
+\end{pmatrix}
+\]
+De forma dual, la matriz de control canónica $H_{\text{base}}$ de dimensiones $(n-k) \times n$ se construye disponiendo los coeficientes del polinomio de control $h(x)$ en orden invertido y desplazándolos:
+\[
+H_{\text{base}} = \begin{pmatrix}
+h_k & h_{k-1} & \dots & h_0 & 0 & \dots & 0 \\
+0 & h_k & h_{k-1} & \dots & h_0 & \dots & 0 \\
+\vdots & & \ddots & \ddots & & \ddots & \vdots \\
+0 & \dots & 0 & h_k & h_{k-1} & \dots & h_0
+\end{pmatrix}
+\]
+Cualquier palabra codificada se valida en el hardware comprobando que el síndrome sobre el cuerpo base sea nulo: $c \cdot H_{\text{base}}^T = 0 \in \mathbb{F}_q^{n-k}$.
+
+\subsubsection{9.2.3 Otra Representación: La Matriz de Control por Representantes en la Extensión}
+Como establece la teoría general de códigos lineales, un mismo código puede ser definido por múltiples matrices de control y generadoras equivalentes. Al igual que $H_{\text{base}}$ define el código en $\mathbb{F}_q$ operando con los coeficientes de $h(x)$, podemos construir \textbf{otra matriz de control equivalente} operando directamente en el cuerpo de extensión $\mathbb{F}_{q^m}$.
+
+Consideremos una \textbf{palabra del código} representada por su polinomio: 
+\[
+c(x) = c_0 + c_1x + c_2x^2 + \dots + c_{n-1}x^{n-1}
+\]
+Sabiendo que los coeficientes $c_j$ de esta palabra pertenecen al cuerpo base $\mathbb{F}_q$, la condición de divisibilidad $m_i(x) \mid c(x)$ se satisface si y solo si la palabra se anula al evaluar su polinomio en el \textbf{elemento representante} $\alpha^i$ de su clase. 
+
+Matemáticamente, evaluar la palabra significa sustituir la variable $x$ por la raíz $\alpha^i$:
+\[
+c(\alpha^i) = c_0(1) + c_1(\alpha^i) + c_2(\alpha^i)^2 + \dots + c_{n-1}(\alpha^i)^{n-1} = 0
+\]
+Para expresar esta evaluación polinómica como un sistema de ecuaciones matriciales ($c \cdot H^T = 0$), necesitamos que las filas de la matriz $H$ contengan exactamente las potencias sucesivas de la raíz. Por lo tanto, una forma matricial perfectamente válida para definir el código consiste en construir una matriz usando \textbf{exclusivamente una fila por cada polinomio mínimo distinto}, donde cada fila contenga las potencias de su representante respectivo ($\alpha^{i_1}, \alpha^{i_2}, \dots$):
+\[
+H_{\text{rep}} = \begin{pmatrix}
+1 & \alpha^{i_1} & (\alpha^{i_1})^2 & \dots & (\alpha^{i_1})^{n-1} \\
+1 & \alpha^{i_2} & (\alpha^{i_2})^2 & \dots & (\alpha^{i_2})^{n-1} \\
+\vdots & \vdots & \vdots & \ddots & \vdots
+\end{pmatrix}
+\]
+Al multiplicar el vector de la palabra $c = (c_0, c_1, \dots, c_{n-1})$ por la transpuesta de esta matriz, estamos realizando simultáneamente las evaluaciones en todos los representantes. Esta matriz $H_{\text{rep}}$ es simplemente otro caso particular de matriz de control que define exactamente el mismo subespacio (el mismo código) que $H_{\text{base}}$.
+
+\newpage
+\subsubsection{9.2.4 Construcción de la Matriz Extendida por Bloques}
+Siguiendo con el principio de multiplicidad de matrices equivalentes, podemos construir una matriz de control aún más grande añadiendo filas que representen condiciones algebraicas redundantes. Sabiendo que $c(\alpha^i) = 0 \implies c(\alpha^{i \cdot q}) = 0$, podemos \textbf{extender} $H_{\text{rep}}$ añadiendo los demás elementos de cada coset cíclico. 
+
+El orden estricto para montar esta nueva matriz $H_{\text{ext}}$ es ir bloque por bloque (polinomio a polinomio):
+\begin{enumerate}
+    \item Se coloca la fila del representante del primer polinomio $m_{i_1}$.
+    \item Se colocan justo debajo las filas de todos sus conjugados.
+    \item Se traza un separador.
+    \item Se coloca la fila del representante del segundo polinomio $m_{i_2}$.
+    \item Se colocan debajo las filas de todos sus conjugados, y así sucesivamente.
+\end{enumerate}
+
+Visualmente, la matriz extendida queda estructurada en bloques separados de la siguiente forma:
+\[
+H_{\text{ext}} = \begin{pmatrix}
+1 & \alpha^{i_1} & (\alpha^{i_1})^2 & \dots & (\alpha^{i_1})^{n-1} & \leftarrow \text{Representante } m_{i_1} \\
+1 & \alpha^{i_1 \cdot q} & (\alpha^{i_1 \cdot q})^2 & \dots & (\alpha^{i_1 \cdot q})^{n-1} & \leftarrow \text{Conjugados de } m_{i_1} \\
+\vdots & \vdots & \vdots & \ddots & \vdots & \vdots \\
+\hline
+1 & \alpha^{i_2} & (\alpha^{i_2})^2 & \dots & (\alpha^{i_2})^{n-1} & \leftarrow \text{Representante } m_{i_2} \\
+1 & \alpha^{i_2 \cdot q} & (\alpha^{i_2 \cdot q})^2 & \dots & (\alpha^{i_2 \cdot q})^{n-1} & \leftarrow \text{Conjugados de } m_{i_2} \\
+\vdots & \vdots & \vdots & \ddots & \vdots & \vdots \\
+\hline
+\multicolumn{6}{c}{\vdots}
+\end{pmatrix}
+\]
+
+¿Por qué nos interesa construir esta matriz tan grande y redundante? Porque al tener todos los elementos de las clases desglosados en estos bloques, podemos aplicar la estrategia central del diseño BCH: \textbf{buscar entre todas estas filas} el subconjunto específico cuyos exponentes formen una racha de \textbf{grados consecutivos en orden creciente de uno en uno} ($\alpha^b, \alpha^{b+1}, \dots, \alpha^{b+\delta-2}$).
+
+Si aislamos y extraemos exclusivamente esas filas consecutivas, obtenemos una submatriz reducida $H_{\text{sub}}$:
+\[
+H_{\text{sub}} = \begin{pmatrix}
+1 & \alpha^b & (\alpha^b)^2 & \dots & (\alpha^b)^{n-1} \\
+1 & \alpha^{b+1} & (\alpha^{b+1})^2 & \dots & (\alpha^{b+1})^{n-1} \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+1 & \alpha^{b+\delta-2} & (\alpha^{b+\delta-2})^2 & \dots & (\alpha^{b+\delta-2})^{n-1}
+\end{pmatrix}
+\]
+Esta submatriz extraída posee una estructura matemática perfecta de \textbf{Vandermonde}.
+
+\subsubsection{9.2.5 Demostración de la Cota BCH}
+Al estar la matriz de Vandermonde $H_{\text{sub}}$ generada por elementos distintos de la extensión (las potencias consecutivas crecientes), el álgebra lineal garantiza que \textbf{cualquier conjunto de $\delta-1$ columnas elegido al azar es siempre linealmente independiente}. 
+
+Como no existe ninguna combinación lineal de $\delta-1$ columnas o menos que pueda proporcionar el vector nulo, es imposible que una palabra válida del código distinta de cero tenga un peso de Hamming menor o igual a $\delta-1$. Queda demostrada así de forma directa la cota fundamental: $d \ge \delta$.
+
+\newpage
+\subsection{9.3 Ejemplo Práctico Completo: Diseño del Código BCH Binario \texorpdfstring{$[7, 4, 3]$}{[7, 4, 3]}}
+
+Diseñaremos un código BCH binario ($q=2$) en sentido estricto ($b=1$), de longitud $n=7$, buscando garantizar una distancia diseñada $\delta = 3$ (capacidad para corregir $t = 1$ error).
+
+\subsubsection{Paso 1: Identificación de Raíces Consecutivas}
+Para obtener $\delta = 3$, nuestro polinomio generador debe albergar como raíces a $\delta - 1 = 2$ potencias consecutivas de un elemento primitivo $\alpha \in \mathbb{F}_{2^3}$ (donde $\alpha^3 + \alpha + 1 = 0$). Las potencias requeridas son: $\alpha^1$ y $\alpha^2$.
+
+\subsubsection{Paso 2: Construcción de $g(x)$ como Producto de Polinomios Distintos}
+Estudiamos a qué clases ciclotómicas pertenecen las potencias deseadas para extraer sus polinomios mínimos sobre $\mathbb{F}_2$:
+\begin{itemize}
+    \item La raíz $\alpha^1$ pertenece a la clase $C_1 = \{1, 2, 4\} \implies m_1(x) = x^3 + x + 1$.
+    \item La raíz $\alpha^2$ también pertenece a la clase $C_1 = \{1, 2, 4\} \implies m_1(x) = x^3 + x + 1$.
+\end{itemize}
+Como ambas raíces consecutivas caen dentro de la misma clase ciclotómica, el conjunto de polinomios mínimos distintos contiene únicamente a $m_1(x)$. El polinomio generador es el producto de los elementos de este conjunto sin repetir:
+\[
+g(x) = m_1(x) = x^3 + x + 1
+\]
+La dimensión final del código es $k = 7 - \operatorname{deg}(g(x)) = 7 - 3 = 4$, estructurando un código $[7, 4]$ de distancia real $d=3$.
+
+\subsubsection{Paso 3: Construcción de $H_{\text{rep}}$ y la Extensión de Vandermonde}
+Dado que el código solo utiliza el polinomio mínimo $m_1(x)$, una forma de la matriz de control en la extensión $\mathbb{F}_8$ consta únicamente de la fila de su representante $\alpha^1$:
+\[
+H_{\text{rep}} = \begin{pmatrix}
+1 & \alpha^1 & \alpha^2 & \alpha^3 & \alpha^4 & \alpha^5 & \alpha^6
+\end{pmatrix}
+\]
+
+Para poder evaluar analíticamente la distancia mínima mediante la cota BCH, \textbf{extendemos} esta matriz formando una nueva matriz de control equivalente, añadiendo las filas de los elementos conjugados de su coset cíclico ($\alpha^2$ y $\alpha^4$):
+\[
+H_{\text{ext}} = \begin{pmatrix}
+1 & \alpha^1 & \alpha^2 & \alpha^3 & \alpha^4 & \alpha^5 & \alpha^6 & \leftarrow \text{Fila representante } \alpha^1 \\
+1 & \alpha^2 & \alpha^4 & \alpha^6 & \alpha^1 & \alpha^3 & \alpha^5 & \leftarrow \text{Fila conjugada } \alpha^2 \\
+1 & \alpha^4 & \alpha^1 & \alpha^5 & \alpha^2 & \alpha^6 & \alpha^3 & \leftarrow \text{Fila conjugada } \alpha^4
+\end{pmatrix}
+\]
+Aislamos de esta matriz extendida las filas cuyos grados en los exponentes sean consecutivos en orden creciente ($+1$), que son las filas de $\alpha^1$ y $\alpha^2$. Al extraerlas en ese orden secuencial, desvelamos la submatriz de Vandermonde $H_{\text{sub}}$ de dimensiones $2 \times 7$:
+\[
+H_{\text{sub}} = \begin{pmatrix}
+1 & \alpha^1 & \alpha^2 & \alpha^3 & \alpha^4 & \alpha^5 & \alpha^6 \\
+1 & \alpha^2 & \alpha^4 & \alpha^6 & \alpha^1 & \alpha^3 & \alpha^5
+\end{pmatrix}
+\]
+Al ser una matriz de Vandermonde sobre elementos distintos, cualquier par de columnas es linealmente independiente, lo que demuestra analíticamente que la distancia mínima real cumple $d \ge 3$.
+
+\newpage
+\subsection{9.4 Anexo 1: Descodificación Algebraica de Códigos BCH}
+
+Sea $r(x) = c(x) + e(x)$ el polinomio recibido. Supongamos que han ocurrido $\nu \le t$ errores (donde $t = \lfloor \frac{\delta-1}{2} \rfloor$) en posiciones desconocidas del vector, descritas por los índices $j_1, j_2, \dots, j_\nu$. El polinomio de error se denota como $e(x) = \sum_{l=1}^{\nu} e_{j_l} x^{j_l}$. El proceso consta de cuatro fases:
 
 \subsubsection{1. Cálculo de los Síndromes de Newton}
-Se evalúa el polinomio recibido en las raíces de la definición del código. Esto genera $\delta-1 = 2t$ valores escalares pertenecientes al cuerpo de extensión $\mathbb{F}_{q^m}$:
+Se evalúa el polinomio recibido en las raíces consecutivas de la definición. Esto genera $\delta-1 = 2t$ valores escalares en el cuerpo de extensión $\mathbb{F}_{q^m}$:
 \[
 S_i = r(\alpha^{b+i-1}) = e(\alpha^{b+i-1}) = \sum_{l=1}^{\nu} e_{j_l} (\alpha^{j_l})^{b+i-1}, \quad \text{para } i = 1, 2, \dots, 2t
 \]
-Si todos los síndromes calculados resultan ser cero ($S_i = 0$), el algoritmo se detiene determinando que no se han producido errores.
+Si todos los síndromes calculados resultan ser cero ($S_i = 0$), se determina que no se han producido errores.
 
 \subsubsection{2. Determinación de los Polinomios y la Ecuación Clave}
-Definimos las variables de localización como $X_l = \alpha^{j_l}$. Se construye el \textbf{polinomio localizador de errores} $\Lambda(x)$, cuyas raíces son los inversos de las posiciones erróneas, y el \textbf{polinomio evaluador de errores} $E(x)$ (o $\Omega(x)$):
+Definimos las variables de localización como $X_l = \alpha^{j_l}$. Se construye el \textbf{polinomio localizador de errores} $\Lambda(x)$, cuyas raíces son los inversos de las posiciones erróneas, y el \textbf{polinomio evaluador de errores} $\Omega(x)$:
 \[
 \Lambda(x) = \prod_{l=1}^{\nu} (1 - X_l x) = 1 + \Lambda_1 x + \dots + \Lambda_\nu x^\nu
 \]
-Si definimos el polinomio de síndromes como $S(x) = \sum_{i=1}^{2t} S_i x^{i-1}$, la relación fundamental que vincula los síndromes conocidos con las localizaciones e intensidades de los errores se conoce como la \textbf{Ecuación Clave de la Descodificación}:
+Si definimos el polinomio de síndromes conocido como $S(x) = \sum_{i=1}^{2t} S_i x^{i-1}$, la relación fundamental que vincula los síndromes con las localizaciones se conoce como la \textbf{Ecuación Clave}:
 \[
-S(x)\Lambda(x) \equiv E(x) \pmod{x^{2t}}
+S(x)\Lambda(x) \equiv \Omega(x) \pmod{x^{2t}}
 \]
-Sabiendo que el grado del polinomio evaluador cumple $\operatorname{deg}(E(x)) < \operatorname{deg}(\Lambda(x)) \le t$, este problema de congruencia polinómica se puede resolver de las siguientes maneras:
+Sabiendo que $\operatorname{deg}(\Omega(x)) < \operatorname{deg}(\Lambda(x)) \le t$, esta congruencia se resuelve mediante tres alternativas metodológicas:
 \begin{itemize}
-    \item \textbf{Algoritmo de Peterson-Gorenstein-Zierler (PGZ):} Resuelve la Ecuación Clave transformándola en un sistema lineal mediante la inversión directa de la matriz de síndromes. Su complejidad computacional es alta ($O(t^3)$), por lo que solo es viable en diseños donde $t$ sea muy pequeño.
-    \item \textbf{Algoritmo de Berlekamp-Massey:} Es un método iterativo altamente eficiente. Modela la Ecuación Clave como la síntesis del polinomio de conexión de longitud mínima para un registro LFSR que genere la secuencia de síndromes. Su complejidad óptima es de $O(t^2)$.
-    \item \textbf{Algoritmo de Euclides Extendido:} Aplica el algoritmo de Euclides a los polinomios $x^{2t}$ y $S(x)$ hasta que el resto alcance un grado estrictamente menor que $t$.
+    \item \textbf{Algoritmo de Peterson-Gorenstein-Zierler (PGZ):} Convierte la congruencia en un sistema lineal homogéneo resolviendo directamente una matriz matricial de síndromes. Su complejidad computacional es alta ($O(t^3)$), lo que limita su uso a códigos con capacidades correctoras muy bajas.
+    \item \textbf{Algoritmo de Berlekamp-Massey:} Método iterativo de alta eficiencia ($O(t^2)$). Modela el problema como la búsqueda del polinomio de conexión de longitud mínima para un registro de desplazamiento con retroalimentación lineal (LFSR) capaz de sintetizar la secuencia de síndromes observada.
+    \item \textbf{Algoritmo de Euclides Extendido:} Aplica divisiones sucesivas a los polinomios $x^{2t}$ y $S(x)$ de manera iterativa. El algoritmo se detiene exactamente en el paso donde el resto alcanza un grado estrictamente menor que $t$, identificando al resto como $\Omega(x)$ y al coeficiente de combinación de Bézout como $\Lambda(x)$.
 \end{itemize}
 
 \subsubsection{3. Búsqueda de Chien (Fase de Localización)}
-Una vez obtenidos los coeficientes del polinomio $\Lambda(x)$, se realiza una evaluación exhaustiva del polinomio en todos los inversos de los elementos del cuerpo de extensión: $\Lambda(\alpha^{-l})$ para $l = 0, 1, \dots, n-1$. Si se verifica que:
+Una vez hallados los coeficientes del polinomio localizador $\Lambda(x)$, se opera una evaluación exhaustiva en todos los inversos de los elementos del cuerpo de extensión: $\Lambda(\alpha^{-l})$ para $l = 0, 1, \dots, n-1$. Si se verifica la anulación:
 \[
 \Lambda(\alpha^{-l}) = 0
 \]
-se determina de forma unívoca que ha ocurrido un error en la posición posicional exacta $l$ del vector.
+se concluye de forma unívoca que ha ocurrido un error en la posición posicional exacta $l$ del vector recibido.
 
 \subsubsection{4. Cálculo de Magnitudes de Error (Fórmula de Forney)}
 \begin{itemize}
-    \item \textbf{Códigos BCH Binarios ($q=2$):} Dado que el único valor de error no nulo posible en un bit es el $1$, la magnitud es trivial. Una vez localizada la posición mediante Chien, se corrige aplicando el operador NOT (volteando el bit).
-    \item \textbf{Códigos BCH No Binarios ($q>2$):} Es necesario calcular el valor escalar del error. Se define el polinomio evaluador de errores como $\Omega(x) = S(x)\cdot\Lambda(x) \pmod{x^{2t}}$ (donde $S(x) = \sum S_i x^{i-1}$) y se aplica la \textbf{fórmula de Forney} para extraer la magnitud del error en la posición localizada:
+    \item \textbf{Códigos BCH Binarios ($q=2$):} Dado que el único valor de error no nulo posible en un bit es el $1$, el cálculo de magnitudes es trivial. Una vez localizada la posición errónea $l$ mediante la búsqueda de Chien, se corrige aplicando una operación lógica NOT (volteando el bit en dicha posición).
+    \item \textbf{Códigos BCH No Binarios ($q>2$):} Es necesario determinar el valor escalar exacto del error. Se calcula el polinomio evaluador final $\Omega(x) = S(x)\cdot\Lambda(x) \pmod{x^{2t}}$ y se aplica la \textbf{fórmula de Forney} para extraer la magnitud del error en la posición localizada:
     \[
     e_{j_l} = - \frac{\Omega(\alpha^{-j_l})}{\Lambda'(\alpha^{-j_l})} \cdot (\alpha^{-j_l})^{b-1}
     \]
-    donde $\Lambda'(x)$ representa la derivada formal del polinomio localizador.
+    donde $\Lambda'(x)$ representa la derivada formal del polinomio localizador de errores.
 \end{itemize}
+
+\subsection{9.5 Anexo 2: Ejemplo Descodificación BCH paso a paso \texorpdfstring{($t=1$)}{(t=1)}}
+
+Para ilustrar el proceso completo de la sección anterior, vamos a descodificar un mensaje utilizando el código BCH binario $[7, 4, 3]$ diseñado en la sección 9.3. Recordemos que este código opera bajo el cuerpo $\mathbb{F}_{2^3}$ generado por $\alpha^3 + \alpha + 1 = 0$, y tiene capacidad para corregir $t = 1$ error.
+
+Supongamos que se transmite la palabra nula $c(x) = 0$ y, debido al ruido del canal, ocurre un error en el bit de la posición 3. El polinomio recibido es:
+\[
+r(x) = c(x) + e(x) = 0 + x^3 = x^3
+\]
+
+\subsubsection{Paso 1: Cálculo de Síndromes}
+Evaluamos el polinomio recibido $r(x)$ en las raíces consecutivas que definen el código ($\alpha$ y $\alpha^2$):
+\begin{align*}
+S_1 &= r(\alpha) = \alpha^3 \\
+S_2 &= r(\alpha^2) = (\alpha^2)^3 = \alpha^6
+\end{align*}
+Como los síndromes son distintos de cero, el sistema detecta que hay errores.
+
+\subsubsection{Paso 2: Polinomio Localizador de Errores ($\Lambda(x)$)}
+Como el código solo puede corregir $t=1$ error, asumimos $\nu = 1$. El polinomio localizador tiene grado 1 y la forma $\Lambda(x) = 1 + \Lambda_1 x$. 
+
+Por la ecuación clave, para $t=1$, el coeficiente $\Lambda_1$ coincide directamente con el primer síndrome: $\Lambda_1 = S_1$. Por lo tanto:
+\[
+\Lambda(x) = 1 + S_1 x = 1 + \alpha^3 x
+\]
+
+\subsubsection{Paso 3: Búsqueda de Chien (Localización)}
+Debemos encontrar qué inverso de las posiciones del vector ($\alpha^{-l}$) anula al polinomio $\Lambda(x)$. Resolvemos la ecuación:
+\[
+\Lambda(x) = 0 \implies 1 + \alpha^3 x = 0
+\]
+Trabajando en $\mathbb{F}_{2^3}$ (donde sumar y restar es equivalente, es decir, $1 = -1$):
+\[
+\alpha^3 x = 1 \implies x = \alpha^{-3}
+\]
+Dado que la raíz encontrada es exactamente $\alpha^{-3}$, la búsqueda de Chien nos confirma de forma unívoca que el error ha ocurrido en la posición posicional $l = 3$.
+
+\subsubsection{Paso 4: Corrección del Error}
+Al tratarse de un código BCH binario ($q=2$), la magnitud del error es trivial (siempre es 1). El polinomio de error estimado es $\hat{e}(x) = x^3$. 
+Restauramos la palabra original restando (sumando en binario) el error al vector recibido:
+\[
+\hat{c}(x) = r(x) + \hat{e}(x) = x^3 + x^3 = 0
+\]
+¡El algoritmo ha recuperado la palabra transmitida $c(x) = 0$ con éxito!
+
 
 \end{document}
 
