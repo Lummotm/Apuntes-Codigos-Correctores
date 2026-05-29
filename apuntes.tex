@@ -528,54 +528,81 @@ Cualquier submatriz de tamaño $(n-k) \times (n-k)$ es de Vandermonde y su deter
 
 Por analogía, la matriz generadora $G$ se obtiene evaluando las potencias de los elementos $x_{i}$ desde la potencia $0$ hasta $k-1$.
 
-\subsection{4.3 Decodificación Única y el Sistema de Welch-Berlekamp}
 
-Dado un vector recibido $r = (r_1, \dots, r_n)$, el objetivo en decodificación única (capacidad correctora hasta $t = \lfloor \frac{n-k}{2} \rfloor$ errores) es encontrar un polinomio bivariado de la forma $Q(x,y) = Q_0(x) + Q_1(x)y \in \mathbb{F}_q[x,y]$.
+\subsection{4.3 Decodificación Única y el Sistema de Interpolación Bivariada ($Q_0, Q_1$)}
 
-Establecemos las restricciones de grado basándonos en los parámetros: $l_0 = n - 1 - t$ y $l_1 = n - 1 - t - (k - 1)$. Para cada punto de evaluación $x_i$ y valor recibido $r_i$, planteamos el sistema lineal homogéneo:
-\[ Q_0(x_i) + r_i Q_1(x_i) = 0, \quad \text{para } i = 1, \dots, n \]
+Dado un vector recibido $r = (r_1, r_2, \dots, r_n) \in \mathbb{F}_q^n$ tras el paso de la palabra de código por el canal, el objetivo de la decodificación única (con capacidad para corregir hasta $t = \lfloor \frac{n-k}{2} \rfloor$ errores) es encontrar un polinomio bivariado no nulo de la forma:
+\[
+Q(x,y) = Q_0(x) + yQ_1(x) \in \mathbb{F}_q[x,y] \setminus \{0\}
+\]
 
-Definiendo los polinomios mediante sus coeficientes incógnitos:
-\[ Q_0(x) = \sum_{j=0}^{l_0} Q_{0,j} x^j \quad \text{y} \quad Q_1(x) = \sum_{j=0}^{l_1} Q_{1,j} x^j \]
+Para determinar unívocamente sus coeficientes mediante un sistema lineal compatible, imponemos las restricciones de grado máximo establecidas por el teorema de interpolación de Welch-Berlekamp:
+\begin{enumerate}
+    \item $\deg(Q_0(x)) \le l_0 = n - 1 - t$
+    \item $\deg(Q_1(x)) \le l_1 = n - 1 - t - (k - 1)$
+\end{enumerate}
 
-\textbf{Construcción de las Matrices por Bloques $A$ y $B$:}\\
-El sistema de $n$ ecuaciones se estructura mediante la matriz de bloques $M = (A \mid B)$:
+Para cada punto de evaluación conocido $x_i$ y su correspondiente valor recibido $r_i$, planteamos la condición fundamental de interpolación geométrica $Q(x_i, r_i) = 0$, lo que se traduce en el siguiente sistema homogéneo de $n$ ecuaciones lineales:
+\[
+Q_0(x_i) + r_i Q_1(x_i) = 0, \quad \text{para } i = 1, 2, \dots, n
+\]
+
+\subsubsection{Construcción Algebraica de las Matrices por Bloques}
+
+Expresando los polinomios componentes en función de sus coeficientes incógnitos, tenemos:
+\[
+Q_0(x) = \sum_{j=0}^{l_0} Q_{0,j} x^j \quad \text{y} \quad Q_1(x) = \sum_{j=0}^{l_1} Q_{1,j} x^j
+\]
+
+Este sistema de $n$ ecuaciones se estructura de manera compacta mediante una matriz de bloques de dimensiones $n \times (l_0 + l_1 + 2)$, definida como $M = (A \mid B)$:
+
 \begin{itemize}
-    \item \textbf{Matriz $A$ (Asociada a $Q_0$):} Matriz de tipo $n \times (l_0 + 1)$ con las potencias de los puntos de evaluación.
-    \[ A = \begin{pmatrix} 
+    \item \textbf{Matriz $A$ (Bloque asociado a $Q_0$):} Matriz de dimensiones $n \times (l_0 + 1)$ que contiene las potencias puras de los puntos de evaluación de la fuente:
+    \[
+    A = \begin{pmatrix} 
     1 & x_1 & x_1^2 & \dots & x_1^{l_0} \\
     1 & x_2 & x_2^2 & \dots & x_2^{l_0} \\
     \vdots & \vdots & \vdots & \ddots & \vdots \\
     1 & x_n & x_n^2 & \dots & x_n^{l_0}
-    \end{pmatrix} \]
+    \end{pmatrix}
+    \]
 
-    \item \textbf{Matriz $B$ (Asociada a $Q_1$):} Matriz de tipo $n \times (l_1 + 1)$ donde cada fila de potencias se multiplica por el correspondiente valor recibido $r_i$.
-    \[ B = \begin{pmatrix} 
+    \item \textbf{Matriz $B$ (Bloque asociado a $Q_1$):} Matriz de dimensiones $n \times (l_1 + 1)$ donde cada fila de potencias de Van der Monde se encuentra multiplicada escalarmente por el valor recibido $r_i$:
+    \[
+    B = \begin{pmatrix} 
     r_1 & r_1 x_1 & r_1 x_1^2 & \dots & r_1 x_1^{l_1} \\
     r_2 & r_2 x_2 & r_2 x_2^2 & \dots & r_2 x_2^{l_1} \\
     \vdots & \vdots & \vdots & \ddots & \vdots \\
     r_n & r_n x_n & r_n x_n^2 & \dots & r_n x_n^{l_1}
-    \end{pmatrix} \]
+    \end{pmatrix}
+    \]
 \end{itemize}
 
-El sistema completo se expresa como el producto de la matriz de bloques por el vector de coeficientes:
-\[ (A \mid B) \cdot \begin{pmatrix} Q_{0,0} \\ \vdots \\ Q_{0,l_0} \\ Q_{1,0} \\ \vdots \\ Q_{1,l_1} \end{pmatrix} = \mathbf{0} \]
+El sistema homogéneo completo se expresa formalmente como el producto de la matriz de bloques combinada por el vector columna de coeficientes incógnitos ordenados:
+\[
+\begin{pmatrix} A & \vline & B \end{pmatrix} \cdot 
+\begin{pmatrix} 
+Q_{0,0} \\ \vdots \\ Q_{0,l_0} \\ \hline Q_{1,0} \\ \vdots \\ Q_{1,l_1} 
+\end{pmatrix} = \mathbf{0}
+\]
 
-Cualquier vector no nulo perteneciente al \textit{núcleo por la derecha} (right kernel) de la matriz de bloques proporciona una solución válida para el polinomio $Q(x,y)$. El polinomio original de información se recupera directamente mediante la división analítica:
-\[ f(x) = -\frac{Q_0(x)}{Q_1(x)} \]
+\subsubsection{Resolución, División y Localización de Errores}
 
-\textbf{Teo. 4.3.1:} Si han ocurrido menos de $\frac{d}{2}$ errores, entonces existe al menos un polinomio no nulo $Q(x,y)$ que satisface las condiciones del sistema.
+Cualquier vector no nulo perteneciente al \textit{núcleo por la derecha} (right kernel) de la matriz de bloques $M$ proporciona una combinación de coeficientes válida para construir los polinomios $Q_0(x)$ y $Q_1(x)$. En caso de existir multiplicidad de soluciones en el núcleo, se selecciona el vector que induzca el menor grado posible en $Q_1(x)$.
 
-\textbf{Teo. 4.3.2:} Si la palabra transmitida es generada por $f(x)$ y el número de errores es menor a $\frac{d}{2}$, entonces se cumple rigurosamente que $f(x) = -\frac{Q_{0}(x)}{Q_{1}(x)}$.
+Una vez determinados ambos polinomios, el teorema de decodificación asegura que el polinomio del mensaje original $g(x)$ se recupera directamente mediante la división euclídea:
+\[
+g(x) = -\frac{Q_0(x)}{Q_1(x)}
+\]
 
-\textbf{Algoritmo 4.3.3 (Histórico de Peterson):}\\
-Este método clásico divide el problema de decodificación única en dos fases algebraicas secuenciales:
+\textit{Nota sobre cuerpos binarios:} Dado que el examen opera sobre el cuerpo extendido $K = \mathbb{F}_{16}$ (característica 2), el operador de signo negativo es la identidad ($+1 = -1$), por lo que la división analítica se simplifica de forma directa a $g(x) = \frac{Q_0(x)}{Q_1(x)}$ con un resto idénticamente nulo ($\text{resto} = 0$).
+
+\paragraph{Interpretación Teórica de los Resultados:}
 \begin{enumerate}
-\item Se calculan los síndromes iniciales $S_{i} = r(\beta^{i})$ para $i=1,2,...,n-k$.
-\item Se encuentra la solución $Q_{1}(x)$ de menor grado resolviendo un sistema de ecuaciones matricial formado exclusivamente por estos síndromes.
-\item Se calculan analíticamente los ceros de $Q_{1}(x)$, que llamaremos $\beta^{i_{1}},...,\beta^{i_{t}}$.
-\item Se hallan los valores de los errores resolviendo un sistema de ecuaciones lineales final o utilizando una fórmula directa. La salida es el vector de error corregido $(e_{1},e_{2},...,e_{n})$.
+    \item \textbf{Criterio de Validación:} Si el número de errores reales introducidos por el canal es $\le t$, la división de $Q_0(x)$ entre $Q_1(x)$ será exacta. Si el resto obtenido es distinto de cero, se diagnostica inmediatamente un \textit{error de decodificación} (falla catastrófica por exceso de ruido).
+    \item \textbf{Polinomio Localizador:} El polinomio $Q_1(x)$ actúa estrictamente como el localizador de errores clásico. Al calcular sus raíces en el cuerpo mediante la función \texttt{roots()}, los valores obtenidos corresponden de manera biunívoca con las coordenadas de evaluación $x_i \in X$ donde la información ha sido alterada.
 \end{enumerate}
+
 
 \subsection{4.4 Decodificación en Lista y el Algoritmo de Sudan}
 
