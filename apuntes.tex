@@ -1006,20 +1006,46 @@ h_k & h_{k-1} & \dots & h_0 & 0 & \dots & 0 \\
 \]
 Esta disposición garantiza matemáticamente que $G \cdot H^T = 0$, permitiendo verificar de forma eficiente la integridad de los vectores recibidos.
 
-\subsubsection{8.2.4 Polinomio Generador del Código Dual $C^\perp$}
-Todo código cíclico $C$ de longitud $n$ y dimensión $k$ posee un código dual $C^\perp$ de dimensión $n-k$ que también mantiene la estructura de código cíclico. El polinomio generador de este código dual, denotado como $g^\perp(x)$, se deriva directamente del polinomio de control $h(x)$ de $C$, pero requiere aplicar una transformación algebraica conocida como el \textbf{polinomio recíproco}.
+\subsubsection{8.2.4 Polinomio Generador del Código Dual \texorpdfstring{$C^\perp$}{C-perp} (Enfoque Matricial)}
+Todo código cíclico $C$ de longitud $n$ y dimensión $k$ posee un código dual $C^\perp$ de dimensión $n-k$ que también es cíclico. El polinomio generador de este código dual, denotado como $g^\perp(x)$, se puede deducir de forma visual y directa aprovechando la estructura de las matrices del código.
 
-El procedimiento constructivo consta de tres pasos matemáticos:
+Sabemos por definición de dualidad que la matriz generadora del código dual coincide exactamente con la matriz de control del código original: $\mathbf{G^\perp = H}$.
+Esta equivalencia matricial nos da la receta inmediata para encontrar $g^\perp(x)$ en tres pasos lógicos:
+
 \begin{enumerate}
-    \item \textbf{Cálculo del polinomio de control:} Se obtiene mediante la división exacta en el anillo del cuerpo base: $h(x) = \frac{x^n - 1}{g(x)}$. Su grado es $k$.
-    \item \textbf{Inversión de coeficientes (Polinomio Recíproco):} Se define el polinomio recíproco $h^*(x)$ sustituyendo la variable $x$ por $x^{-1}$ y multiplicando por $x^k$ para reestructurar las potencias:
-    \[ h^*(x) = x^k h(x^{-1}) \]
-    Desde un punto de vista práctico, esta operación equivale geométricamente a \textbf{escribir los coeficientes de $h(x)$ en estricto orden inverso}.
-    \item \textbf{Ajuste Mónico:} Por definición, todo polinomio generador de un ideal debe ser estrictamente mónico (el coeficiente de su mayor potencia debe ser 1). Al invertir el polinomio en el paso anterior, el término independiente $h_0$ de $h(x)$ se convierte en el nuevo coeficiente principal. Para normalizar el resultado, se multiplica todo el polinomio por el inverso multiplicativo de $h_0$ en el cuerpo $\mathbb{F}_q$:
-    \[ g^\perp(x) = h_0^{-1} \cdot h^*(x) \]
+    \item \textbf{La conexión matricial:} 
+    En cualquier código cíclico, la primera fila de la matriz generadora contiene de forma directa los coeficientes de su polinomio generador. Al ser $G^\perp = H$, sabemos por la sección anterior que la primera fila de $H$ se construye volcando los coeficientes del polinomio de control $h(x) = h_0 + h_1x + \dots + h_kx^k$ en estricto orden inverso:
+    \[ \text{Fila}_1(H) = (h_k, \,\, h_{k-1}, \,\, \dots, \,\, h_1, \,\, h_0, \,\, 0, \,\, \dots, \,\, 0) \]
+
+    \item \textbf{Lectura del polinomio recíproco:} 
+    Al "leer" directamente esa primera fila de coeficientes para transformarla de nuevo en un polinomio, obtenemos un polinomio temporal donde el orden de los grados se ha invertido:
+    \[ g^\perp_{\text{temp}}(x) = h_k + h_{k-1}x + \dots + h_1x^{k-1} + h_0x^k \]
+    Matemáticamente, esto equivale al polinomio recíproco $h^*(x) = x^k h(x^{-1})$, pero visualmente es, simple y llanamente, \textbf{leer los coeficientes de $h(x)$ al revés}.
+
+    \item \textbf{Ajuste Mónico (Condición de Ideal):} 
+    La teoría de anillos exige que todo polinomio generador sea estrictamente \textbf{mónico} (el coeficiente de la potencia de mayor grado debe ser 1). Al darle la vuelta a los coeficientes en el paso anterior, el término independiente $h_0$ se ha convertido en el coeficiente principal que acompaña a $x^k$. Para normalizarlo, dividimos todo el polinomio por $h_0$ (multiplicando por su inverso en el cuerpo $\mathbb{F}_q$):
+    \[ g^\perp(x) = h_0^{-1} \left( h_k + h_{k-1}x + \dots + h_0x^k \right) \]
 \end{enumerate}
 
-\textbf{Nota para códigos binarios:} Al trabajar sobre el cuerpo $\mathbb{F}_2$, dado que el término independiente de un polinomio válido siempre es 1 (para evitar la raíz 0), su inverso multiplicativo es trivialmente 1. Por tanto, el ajuste mónico es automático y el generador del dual es directamente el polinomio con los coeficientes de $h(x)$ leídos al revés: $g^\perp(x) = x^k h(x^{-1})$.
+\textbf{Nota crucial para códigos binarios ($\mathbb{F}_2$):}\\
+En los códigos binarios, el término independiente $h_0$ de un polinomio válido tiene que ser obligatoriamente 1 (si fuera 0, el polinomio terminaría en $x$, admitiendo la raíz $x=0$, lo cual es imposible como divisor de $x^n-1$). 
+Como $h_0 = 1$, su inverso es trivialmente 1. Esto significa que en binario \textbf{el ajuste mónico es automático}, y el polinomio generador del dual se obtiene directamente invirtiendo los coeficientes de $h(x)$ sin hacer ninguna operación más.
+
+\subsubsection{8.2.5 Advertencia de Rigor: Forma Estándar frente a Forma Sistemática}
+La correspondencia visual directa entre la primera fila de una matriz y el polinomio generador del código exige una distinción rigurosa sobre el formato de dicha matriz. 
+
+\begin{itemize}
+    \item \textbf{Forma Estándar (Polinómica o de Desplazamientos):} 
+    Es la matriz construida exclusivamente volcando los coeficientes de un polinomio y desplazándolos cíclicamente hacia la derecha. En este formato, las filas no sufren combinaciones lineales externas. \textbf{Solo en esta forma} es matemáticamente lícito afirmar que la primera fila contiene exactamente los coeficientes del polinomio generador mónico de grado mínimo. 
+    
+    Dado que la matriz de control $H$ se construye teóricamente por definición volcando los coeficientes de $h(x)$ invertidos y desplazándolos, $H$ se encuentra en Forma Estándar pura. Por ello, leer su primera fila para obtener $g^\perp(x)$ es un procedimiento analíticamente impecable.
+
+    \item \textbf{Forma Sistemática ($G_{\text{sis}} = [I \mid P]$):}
+    Se obtiene aplicando el método de reducción de Gauss-Jordan sobre la matriz estándar. Estas operaciones elementales equivalen a sumar y restar desplazamientos del polinomio generador (combinaciones lineales en el ideal). 
+    En esta forma, la primera fila del bloque identidad corresponde al monomio $x^{n-1}$ sumado a un bloque de paridad. Aunque esta fila constituye una palabra código válida (y, por tanto, en el anillo cociente es un múltiplo polinómico de $g(x)$), su grado algebraico es superior al grado mínimo $n-k$. En consecuencia, \textbf{es un error conceptual grave asumir que la primera fila de una matriz sistemática es el polinomio generador}.
+\end{itemize}
+
+En resumen: Para leer un polinomio generador visualmente desde una matriz, esta debe estar estructurada como una escalera de ceros desplazada, nunca como una identidad diagonalizada.
 
 \subsection{8.3 Factorización de $x^n-1$ y la Distinción de Cuerpos (Base vs. Extensión)}
 
@@ -1314,6 +1340,65 @@ Sustituyendo cada coeficiente limpio en su posición correspondiente, determinam
 
 
 \newpage
+\subsection{Ejercicio C: Factorización Completa, Criba de Irreducibles y Códigos Cíclicos de Longitud \texorpdfstring{$n=15$}{n=15} sobre \texorpdfstring{$\mathbb{F}_2$}{F2}}
+
+\textbf{Enunciado:} 
+\begin{enumerate}
+    \item Factoriza el polinomio $X^{15} - 1$ sobre el cuerpo base $\mathbb{F}_2$ detallando el proceso constructivo mediante una criba lógica de polinomios irreducibles.
+    \item Determina todos los códigos cíclicos binarios de parámetros $[15, 8]$, indicando de forma explícita sus polinomios generadores desarrollados.
+    \item ¿Cuántos códigos cíclicos binarios de longitud 15 no triviales existen? Justifica la aparición matemática del polinomio constante $1$ dentro del conteo combinatorio.
+    \item Desarrolla el marco teórico sobre la restricción de los coeficientes en el cuerpo de coeficientes binarios frente a la extensión ($\mathbb{F}_2$ frente a $\mathbb{F}_{16}$). Discute el papel del automorfismo de Frobenius para ``limpiar'' las potencias de la raíz $\alpha$ y analiza el efecto vinculante (efecto dominó) que desencadena fijar un polinomio irreducible al coset principal $C_1$ en el diseño de códigos BCH.
+\end{enumerate}
+
+\textbf{Resolución detallada:}
+
+\subsubsection{1. Factorización Canónica de \texorpdfstring{$X^{15} - 1$}{X15 - 1} sobre \texorpdfstring{$\mathbb{F}_2$}{F2} mediante Criba}
+Para determinar la descomposición en factores mónicos irreducibles sobre el cuerpo binario, calculamos en primer lugar las órbitas cerradas de los elementos del anillo de enteros $\mathbb{Z}_{15}$ bajo la acción del automorfismo de Frobenius (multiplicando por el cardinal del cuerpo base $q=2$ de forma iterativa). Estos conjuntos constituyen los cosets cíclicos modulo 15:
+\begin{itemize}
+    \item $C_0 = \{0\} \implies$ Tamaño 1. Genera un factor de \textbf{grado 1}: $m_0(X) = X + 1$.
+    \item $C_5 = \{5, 10\} \implies$ Tamaño 2. Genera un factor de \textbf{grado 2}: $m_5(X) = X^2 + X + 1$.
+    \item $C_1 = \{1, 2, 4, 8\} \implies$ Tamaño 4. Genera un factor de \textbf{grado 4}.
+    \item $C_3 = \{3, 6, 12, 9\} \implies$ Tamaño 4. Genera un factor de \textbf{grado 4}.
+    \item $C_7 = \{7, 14, 13, 11\} \implies$ Tamaño 4. Genera un factor de \textbf{grado 4}.
+\end{itemize}
+
+El tamaño de cada órbita define de forma exacta el grado de su correspondiente polinomio irreducible sobre el cuerpo base. Para hallar de forma estrictamente matemática cuáles son los tres factores de grado 4 requeridos sin recurrir a la memorización, realizamos el siguiente proceso de criba en $\mathbb{F}_2[X]$:
+\begin{enumerate}
+    \item \textbf{Filtro de raíces en el cuerpo base (Grado 1):} Un polinomio irreducible de grado $\ge 2$ carece de raíces lineales en $\mathbb{F}_2$. Para evitar la raíz $X=0$, su término independiente debe ser no nulo ($a_0 = 1$). Para evitar la raíz $X=1$, la suma de sus coeficientes evaluados en binario debe ser impar. Dado que el término principal ($X^4$) y el término independiente ($1$) aportan un número par de elementos, la combinación de términos intermedios obligatoriamente debe ser impar. Esto restringe los candidatos a poseer un número total impar de términos (estructuras de 3 o 5 monomios), dejando únicamente cuatro polinomios supervivientes en todo el espacio binario:
+    \[ \{X^4+X+1, \,\, X^4+X^2+1, \,\, X^4+X^3+1, \,\, X^4+X^3+X^2+X+1\} \]
+    \item \textbf{Filtro de descomposición cuadrática (Grado 2):} Un polinomio de grado 4 sin raíces lineales solo puede ser reducible si es el producto de dos factores irreducibles de grado 2. Como el único polinomio irreducible de grado 2 existente en $\mathbb{F}_2$ es $X^2+X+1$, calculamos su cuadrado perfecto operando bajo leyes de característica 2 (donde los dobles productos cruzados se anulan idénticamente, $2x = 0$):
+    \[ (X^2 + X + 1)^2 = (X^2)^2 + (X)^2 + (1)^2 = X^4 + X^2 + 1 \]
+    Este resultado desvela que el candidato $X^4+X^2+1$ es un polinomio compuesto.
+\end{enumerate}
+
+Eliminando al impostor cuadrático de la lista de supervivientes, la criba demuestra que los tres únicos polinomios irreducibles de grado 4 sobre $\mathbb{F}_2$ son exactamente: $X^4+X+1$, $X^4+X^3+1$ y $X^4+X^3+X^2+X+1$. Reuniendo todas las piezas deducidas, la factorización completa del espacio queda demostrada de forma constructiva como:
+\[
+X^{15} - 1 = (X + 1)(X^2 + X + 1)(X^4 + X + 1)(X^4 + X^3 + 1)(X^4 + X^3 + X^2 + X + 1)
+\]
+
+\subsubsection{2. Determina todos los códigos cíclicos binarios de parámetros \texorpdfstring{$[15, 8]$}{[15, 8]}}
+La dimensión de información $k=8$ exige que el polinomio generador mónico $g(X)$ tenga un grado algebraico de $\operatorname{deg}(g(X)) = n - k = 15 - 8 = 7$. Disponemos de cinco bloques irreducibles cuyos grados son $\{1, 2, 4, 4, 4\}$. La única combinación numérica posible para que la suma exacta de grados sea 7 consiste en agrupar:
+\[ \text{Grado 4} + \text{Grado 2} + \text{Grado 1} = 7 \]
+
+Como los factores de grado 1 y grado 2 son únicos ($X+1$ y $X^2+X+1$), formarán parte fija de todas las combinaciones. Su producto conjunto en característica 2 equivale al binomio:
+\[ (X + 1)(X^2 + X + 1) = X^3 + X^2 + X + X^2 + X + 1 = X^3 + 1 \]
+
+Al disponer de tres opciones independientes de grado 4 para completar el producto, deducimos la existencia de exactamente \textbf{tres códigos cíclicos} distintos con estos parámetros. Desarrollamos las multiplicaciones sobre $\mathbb{F}_2$:
+\begin{itemize}
+    \item \textbf{Código 1:} $g_1(X) = (X^3 + 1)(X^4 + X + 1) = X^7 + X^4 + X^3 + X^4 + X + 1 = \mathbf{X^7 + X^3 + X + 1}$
+    \item \textbf{Código 2:} $g_2(X) = (X^3 + 1)(X^4 + X^3 + 1) = X^7 + X^6 + X^3 + X^4 + X^3 + 1 = \mathbf{X^7 + X^6 + X^4 + 1}$
+    \item \textbf{Código 3:} $g_3(X) = (X^3 + 1)(X^4 + X^3 + X^2 + X + 1) = \mathbf{X^7 + X^6 + X^5 + X^2 + X + 1}$
+\end{itemize}
+
+\subsubsection{3. Conteo de Códigos Cíclicos Binarios No Triviales de Longitud 15}
+Cualquier combinación (subconjunto) de los factores irreducibles de $X^{15}-1$ dota al espacio de un ideal único y, por tanto, define un código cíclico. Al estar compuesto el conjunto por $5$ factores irreducibles distintos, el número total de combinaciones posibles se calcula mediante el tamaño de las partes del conjunto potencia: $\text{Códigos Totales} = 2^5 = 32$.
+
+Desde el punto de vista algebraico, el caso del subconjunto vacío (la elección de no tomar ningún factor) equivale por definición de \textbf{producto vacío} al elemento neutro multiplicativo del anillo de polinomios, es decir, al polinomio constante \textbf{$g(X) = 1$}. Dado que $1$ es un divisor legítimo de cualquier polinomio ($X^{15}-1 = 1 \cdot (X^{15}-1)$ con resto nulo), genera el código cíclico trivial que abarca la totalidad del espacio vectorial $\mathbb{F}_2^{15}$ (dimensión $k=15$). 
+
+Para aislar exclusivamente las estructuras \textbf{no triviales}, debemos restar los dos casos extremos universales: el código generado por $g(X)=1$ y el código generado por $g(X)=X^{15}-1$ (espacio nulo de dimensión $k=0$ conteniendo únicamente al vector cero). Concluimos que existen exactamente:
+\[ \text{Códigos No Triviales} = 32 - 2 = \mathbf{30} \]
+
+
 \subsubsection{4. Ampliación Teórica: Restricción de Coeficientes y el Efecto Dominó de la Asignación}
 
 \textbf{El problema de la raíz aislada \texorpdfstring{$\alpha$}{alpha}:}\\
