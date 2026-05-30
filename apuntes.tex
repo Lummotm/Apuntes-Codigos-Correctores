@@ -1006,17 +1006,39 @@ h_k & h_{k-1} & \dots & h_0 & 0 & \dots & 0 \\
 \]
 Esta disposición garantiza matemáticamente que $G \cdot H^T = 0$, permitiendo verificar de forma eficiente la integridad de los vectores recibidos.
 
-\subsection{8.3 Factorización de $x^n-1$ y Conjuntos Ciclotómicos}
+\subsection{8.3 Factorización de $x^n-1$ y la Distinción de Cuerpos (Base vs. Extensión)}
 
-Para hallar de forma práctica los factores irreducibles de $x^n-1$ sobre el cuerpo base $\mathbb{F}_q$, extendemos el análisis a su cuerpo de escisión $\mathbb{F}_{q^m}$ (donde $n | q^m-1$). Sea $\beta$ una raíz primitiva $n$-ésima de la unidad. Las raíces del polinomio se agrupan en órbitas cerradas bajo la acción del automorfismo de Frobenius. Estas órbitas se denominan \textbf{clases o cosets ciclotómicos} módulo $n$ respecto a $q$:
+Para analizar la estructura de un código cíclico de longitud $n$ sobre un cuerpo base $\mathbb{F}_q$, es imperativo estudiar las raíces del polinomio $x^n - 1$. Sin embargo, por lo general, dichas raíces no existen en el cuerpo base $\mathbb{F}_q$. Es necesario realizar una extensión algebraica hacia un cuerpo superior, denominado \textbf{cuerpo de descomposición} o \textit{splitting field}, denotado como $\mathbb{F}_{q^m}$.
+
+Para garantizar la existencia de las raíces, el teorema de estructura de cuerpos finitos exige que la longitud $n$ divida al orden del grupo multiplicativo del cuerpo de extensión. Por tanto, seleccionamos como cuerpo de trabajo el menor entero $m$ tal que $n \mid (q^m - 1)$. 
+
+Dentro de este cuerpo extendido $\mathbb{F}_{q^m}$, diferenciamos dos conceptos fundamentales:
+\begin{itemize}
+    \item \textbf{Elemento primitivo del cuerpo ($\alpha$):} Es el generador de todo el grupo multiplicativo $\mathbb{F}_{q^m}^*$, por lo que su orden es exactamente $\operatorname{ord}(\alpha) = q^m - 1$.
+    \item \textbf{Raíz primitiva $n$-ésima de la unidad ($\beta$):} Es el elemento de orden exacto $n$ cuyas potencias constituyen las $n$ raíces distintas de $x^n - 1$. Se puede construir a partir del elemento primitivo del cuerpo mediante la relación:
+    \[
+    \beta = \alpha^{\frac{q^m - 1}{n}}
+    \]
+\end{itemize}
+
+\subsubsection{8.3.1 Clases Ciclotómicas y Polinomios Mínimos}
+
+Una vez fijada la raíz primitiva $\beta \in \mathbb{F}_{q^m}$, las $n$ raíces del espacio se agrupan en órbitas cerradas bajo la acción del automorfismo de Frobenius ($x \mapsto x^q$). Estas órbitas se denominan \textbf{clases o cosets ciclotómicos} módulo $n$ respecto a $q$:
 \[
 C_j = \left\{ j, \ j\cdot q, \ j\cdot q^2, \ \dots, \ j\cdot q^{s-1} \pmod n \right\}
 \]
-donde $s$ es el menor entero positivo tal que $j\cdot q^s \equiv j \pmod n$. Cada clase ciclotómica define de forma exacta un polinomio mínimo irreducible sobre el cuerpo base $\mathbb{F}_q$:
+donde $s$ es el menor entero positivo tal que $j\cdot q^s \equiv j \pmod n$. 
+
+Cada clase ciclotómica $C_j$ define de forma exacta un \textbf{polinomio mínimo irreducible} $m_j(X)$ con coeficientes estrictamente contenidos en el \textbf{cuerpo base $\mathbb{F}_q$}, el cual se construye multiplicando los factores de su órbita:
 \[
 m_j(X) = \prod_{i \in C_j} (X - \beta^i)
 \]
-La factorización completa del espacio se obtiene seleccionando un representante minimal por cada clase diferenciada: $X^n - 1 = \prod_{j} m_j(X)$. Construir el polinomio generador $g(x)$ se reduce a elegir qué subconjunto de estos vectores de raíces mínimos compondrán el ideal del código.
+
+La factorización completa del espacio sobre el cuerpo base se obtiene seleccionando un único representante minimal por cada clase disjunta diferenciada: 
+\[
+X^n - 1 = \prod_{j \in \text{Rep}} m_j(X)
+\]
+De este modo, construir el polinomio generador $g(x) \in \mathbb{F}_q[x]$ del código cíclico se reduce algebraicamente a elegir qué subconjunto de estos polinomios mínimos compondrán el ideal del código.
 
 \subsection{8.4 Elementos Idempotentes}
 
@@ -1097,7 +1119,209 @@ H = \begin{pmatrix}
 \]
 Se puede comprobar de forma directa multiplicando las matrices algebraicas que $G \cdot H^T \equiv 0 \pmod 2$.
 
+
 \newpage
+\section{Anexo: Ejercicios Utiles de Codigos Ciclicos Resueltos}
+
+\subsection{Ejercicio A: Análisis de Código Cíclico sobre \texorpdfstring{$\mathbb{F}_3$}{F3} (Longitud \texorpdfstring{$n=8$}{n=8})}
+
+\textbf{Enunciado:} 
+\begin{enumerate}
+    \item Demuestra que el polinomio $X^3 + X + 1$ es el polinomio generador de un código cíclico $C$ de longitud $8$ sobre $\mathbb{F}_3$.
+    \item Da una matriz generadora $G$ para dicho código.
+    \item Calcula los parámetros fundamentales de $C$.
+    \item Se considera el mensaje $m(X) = 1 + X^2 + X^3$. Calcula una codificación sistemática de $m(X)$.
+\end{enumerate}
+
+\textbf{Resolución detallada:}
+
+\subsubsection{1. Condición de Divisibilidad sobre \texorpdfstring{$\mathbb{F}_3$}{F3}}
+Para que un polinomio $g(X)$ sea el generador válido de un código cíclico de longitud $n=8$, la condición algebraica necesaria y suficiente es que sea un divisor exacto del binomio $X^8 - 1$ en el anillo de polinomios $\mathbb{F}_3[X]$. Operando en característica 3, los coeficientes admisibles pertenecen al conjunto $\{0, 1, 2\}$, donde restar $1$ equivale aritméticamente a sumar $2$ (ya que $-1 \equiv 2 \pmod 3$).
+
+Realizando la división polinómica euclídea de $X^8 + 2$ entre $X^3 + X + 1$, se comprueba de forma exacta que el resto es idénticamente nulo, obteniendo la siguiente factorización explícita:
+\[
+X^8 - 1 = (X^3 + X + 1)(X^5 + 2X^3 + 2X^2 + X + 2)
+\]
+Al ser la división exacta, queda demostrado que $g(X) = X^3 + X + 1$ genera un ideal en el anillo cociente y, por ende, define un código cíclico de longitud $n = 8$.
+
+\subsubsection{2. Construcción de la Matriz Generadora \texorpdfstring{$G$}{G}}
+La dimensión $k$ del código (número de filas de la matriz generadora) viene determinada por la longitud del bloque menos el grado del polinomio generador: $k = n - \operatorname{deg}(g(X)) = 8 - 3 = 5$. 
+
+Las filas de la matriz generadora deben formar una base linealmente independiente. Por tanto, disponemos los coeficientes de $g(X) = 1 + 1X + 0X^2 + 1X^3$ en forma de vector extensible $(1, 1, 0, 1, 0, 0, 0, 0)$ y aplicamos desplazamientos cíclicos horizontales exclusivamente hasta completar las $k=5$ filas de la base:
+\[
+G = \begin{pmatrix} 
+1 & 1 & 0 & 1 & 0 & 0 & 0 & 0 \\ 
+0 & 1 & 1 & 0 & 1 & 0 & 0 & 0 \\ 
+0 & 0 & 1 & 1 & 0 & 1 & 0 & 0 \\ 
+0 & 0 & 0 & 1 & 1 & 0 & 1 & 0 \\ 
+0 & 0 & 0 & 0 & 1 & 1 & 0 & 1 
+\end{pmatrix}_{5 \times 8}
+\]
+
+\subsubsection{3. Deducción de los Parámetros Fundamentales \texorpdfstring{$[n, k, d]_q$}{[n, k, d]q}}
+Ya disponemos de la longitud $n=8$, la dimensión $k=5$ y el cuerpo base $q=3$. Para hallar la distancia mínima $d$, aplicamos el Lema de Equivalencia con el Peso Mínimo de un código lineal. Como $g(X) \in C$, su vector asociado tiene peso de Hamming $w(g) = 3$, lo que establece una cota superior estricta: $d \le 3$.
+
+Para demostrar rigurosamente que la distancia no puede colapsar a valores menores ($d=1$ o $d=2$) debido a combinaciones lineales redundantes, recurrimos al análisis del polinomio de control $h(X) = X^5 + 2X^3 + 2X^2 + X + 2$. Construimos la matriz de control $H$ disponiendo los coeficientes de $h(X)$ en orden invertido y desplazándolos cíclicamente:
+\[
+H = \begin{pmatrix}
+2 & 1 & 2 & 2 & 0 & 1 & 0 & 0 \\
+0 & 2 & 1 & 2 & 2 & 0 & 1 & 0 \\
+0 & 0 & 2 & 1 & 2 & 2 & 0 & 1
+\end{pmatrix}_{3 \times 8}
+\]
+Aplicando reducción por Gauss-Jordan en módulo 3, obtenemos la forma sistemática equivalente $H_{\text{red}} = [I_3 \mid A]$:
+\[
+H_{\text{red}} = \begin{pmatrix}
+1 & 0 & 0 & 2 & 0 & 1 & 1 & 2 \\
+0 & 1 & 0 & 2 & 2 & 1 & 2 & 0 \\
+0 & 0 & 1 & 0 & 2 & 2 & 1 & 2
+\end{pmatrix}
+\]
+Inspeccionando de forma visual las columnas de $H_{\text{red}}$, determinamos de manera directa que ninguna columna es nula (descartando $d=1$) y que ninguna pareja de columnas es proporcional o linealmente dependiente en $\mathbb{F}_3$ (descartando $d=2$). Por el Corolario de dependencia lineal, el menor número de columnas dependientes es exactamente 3. Concluimos que los parámetros del código son $\mathbf{[8, 5, 3]_3}$.
+
+\subsubsection{4. Codificación Sistemática del Mensaje}
+Para codificar el mensaje $m(X) = 1 + X^2 + X^3$ de forma sistemática de modo que la información original se preserve intacta, podemos emplear dos métodos equivalentes:
+
+\textbf{Método Polinómico (División Euclídea):}
+Multiplicamos el mensaje por $X^{n-k} = X^3$ para desplazarlo y hacer espacio a los bits de paridad:
+\[
+X^3 \cdot m(X) = X^6 + X^5 + X^3
+\]
+Dividimos este resultado entre el polinomio generador $g(X) = X^3 + X + 1$ sobre $\mathbb{F}_3$, lo que nos proporciona un cociente $q(X) = X^3 + X^2 + 2X + 2$ y un resto de paridad exacto de $r(X) = 2X + 1$. La palabra código sistemática se define como:
+\[
+c(X) = X^3 \cdot m(X) - r(X) = (X^6 + X^5 + X^3) - (2X + 1) \equiv X^6 + X^5 + X^3 + X + 2 \pmod 3
+\]
+Ordenando los coeficientes de menor a mayor grado, obtenemos el vector codificado: $\mathbf{c = (2, 1, 0, 1, 0, 1, 1, 0)}$.
+
+\textbf{Método Matricial (Matriz de Dualidad Sistemática):}
+Utilizando el bloque $A$ de la matriz $H_{\text{red}} calculated$ en el apartado anterior, construimos la matriz generadora sistemática global mediante la relación estructural $G_{\text{sis}} = [-A^t \mid I_k] \pmod 3$:
+\[
+G_{\text{sis}} = \begin{pmatrix}
+1 & 1 & 0 & 1 & 0 & 0 & 0 & 0 \\
+0 & 1 & 1 & 0 & 1 & 0 & 0 & 0 \\
+2 & 2 & 1 & 0 & 0 & 1 & 0 & 0 \\
+2 & 1 & 2 & 0 & 0 & 0 & 1 & 0 \\
+1 & 0 & 1 & 0 & 0 & 0 & 0 & 1
+\end{pmatrix}
+\]
+Representando el mensaje como el vector fila $m = (1, 0, 1, 1, 0)$, efectuamos el producto matricial estándar $c = m \cdot G_{\text{sis}} \pmod 3$:
+\[
+c_1 = (1\cdot1) + (0\cdot0) + (1\cdot2) + (1\cdot2) + (0\cdot1) = 5 \equiv 2 \pmod 3
+\]
+\[
+c_2 = (1\cdot1) + (0\cdot1) + (1\cdot2) + (1\cdot1) + (0\cdot0) = 4 \equiv 1 \pmod 3
+\]
+\[
+c_3 = (1\cdot0) + (0\cdot1) + (1\cdot1) + (1\cdot2) + (0\cdot1) = 3 \equiv 0 \pmod 3
+\]
+Las coordenadas de información se copian directamente debido al bloque identidad derecho, devolviendo exactamente el mismo vector sistemático: $\mathbf{c = (2, 1, 0, 1, 0, 1, 1, 0)}$.
+
+\newpage
+\subsection{Ejercicio B: Código de Evaluación Reed-Solomon sobre \texorpdfstring{$\mathbb{F}_8$}{F8} (Longitud \texorpdfstring{$n=7$}{n=7})}
+
+\textbf{Enunciado:} Sea $\alpha \in \mathbb{F}_8$ tal que $\alpha^3 = \alpha + 1$, y sea $C$ el código lineal definido por la siguiente matriz generatriz:
+\[
+G = \begin{pmatrix}
+1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+1 & \alpha & \alpha^2 & \alpha^3 & \alpha^4 & \alpha^5 & \alpha^6 \\
+1 & \alpha^2 & \alpha^4 & \alpha^6 & \alpha & \alpha^3 & \alpha^5
+\end{pmatrix}_{3 \times 7}
+\]
+\begin{enumerate}
+    \item Prueba que $C$ es un código cíclico.
+    \item Calcula el polinomio generador de $C$.
+\end{enumerate}
+
+\textbf{Resolución detallada:}
+
+\subsubsection{1. Demostración de la Invariancia por Desplazamiento Cíclico}
+Para demostrar que el código es cíclico de forma directa, basta con comprobar que el desplazamiento lineal una posición hacia la derecha de cualquiera de las filas que componen la base de la matriz generatriz $G$ genera un vector que sigue perteneciendo al espacio del código (es decir, que es combinación lineal o múltiplo escalar de las filas originales).
+
+Al trabajar sobre el cuerpo finito extendido $\mathbb{F}_8$, el Teorema de Estructura Multiplicativa garantiza que el orden del grupo de elementos no nulos es $q-1 = 7$. Por consiguiente, el elemento primitivo satisface de forma universal la identidad $\alpha^7 = 1$, lo que permite reducir los exponentes de las potencias altas de forma cíclica módulo 7 (ej. $\alpha^8 = \alpha, \alpha^9 = \alpha^2$).
+
+Evaluamos el desplazamiento horizontal de cada fila base de $G$:
+\begin{itemize}
+    \item \textbf{Fila 1 ($g_1$):} $g_1 = (1, 1, 1, 1, 1, 1, 1)$. Su desplazamiento a la derecha produce de forma idéntica $g_1' = (1, 1, 1, 1, 1, 1, 1)$. Como $g_1' = 1 \cdot g_1$, pertenece trivialmente al código.
+    \item \textbf{Fila 2 ($g_2$):} $g_2 = (1, \alpha, \alpha^2, \alpha^3, \alpha^4, \alpha^5, \alpha^6)$. Al rotarlo hacia la derecha, el último elemento pasa a la primera posición:
+    \[ g_2' = (\alpha^6, 1, \alpha, \alpha^2, \alpha^3, \alpha^4, \alpha^5) \]
+    Multiplicamos el vector fila $g_2$ original por el escalar del cuerpo $\alpha^6$:
+    \[ \alpha^6 \cdot g_2 = (\alpha^6, \alpha^7, \alpha^8, \alpha^9, \alpha^{10}, \alpha^{11}, \alpha^{12}) \]
+    Aplicando la reducción cíclica de exponentes $\alpha^7 = 1$, el vector se simplifica a:
+    \[ \alpha^6 \cdot g_2 = (\alpha^6, 1, \alpha, \alpha^2, \alpha^3, \alpha^4, \alpha^5) \]
+    Comprobamos que $g_2' = \alpha^6 \cdot g_2$. Al ser un múltiplo escalar legítimo de una palabra del código, se garantiza que $g_2' \in C$.
+    \item \textbf{Fila 3 ($g_3$):} $g_3 = (1, \alpha^2, \alpha^4, \alpha^6, \alpha, \alpha^3, \alpha^5)$. Su rotación cíclica genera:
+    \[ g_3' = (\alpha^5, 1, \alpha^2, \alpha^4, \alpha^6, \alpha, \alpha^3) \]
+    Multiplicamos el vector fila $g_3$ original por el escalar $\alpha^5$ y reducimos las potencias altas módulo 7:
+    \[ \alpha^5 \cdot g_3 = (\alpha^5, \alpha^7, \alpha^9, \alpha^{11}, \alpha^6, \alpha^8, \alpha^{10}) = (\alpha^5, 1, \alpha^2, \alpha^4, \alpha^6, \alpha, \alpha^3) \]
+    Se verifica que $g_3' = \alpha^5 \cdot g_3$, lo que confirma que $g_3' \in C$.
+\end{itemize}
+Al ser el espacio invariante ante el desplazamiento de toda su base, queda demostrado analíticamente que $C$ es un \textbf{código cíclico}.
+
+\subsubsection{2. Deducción del Polinomio Generador Mónico \texorpdfstring{$g(X)$}{g(X)}}
+A partir de las dimensiones de la matriz generatriz, extraemos que la longitud es $n = 7$ y la dimensión es $k = 3$. Por tanto, el grado del polinomio generador mónico que buscamos es:
+\[ \operatorname{deg}(g(X)) = n - k = 7 - 3 = 4 \]
+
+Aplicamos el método algebraico de las clases ciclotómicas moleculares. Calculamos los cosets multiplicativos de Frobenius multiplicando por el cardinal del cuerpo base ($q=8$) módulo la longitud del bloque ($n=7$). Para cualquier índice entero $j \in \mathbb{Z}_7$, se verifica de forma directa que:
+\[ j \cdot q = j \cdot 8 \equiv j \cdot 1 \equiv j \pmod 7 \]
+Esto demuestra que absolutamente todas las clases ciclotómicas del código tienen tamaño 1 ($C_0=\{0\}, C_1=\{1\}, C_2=\{2\}, \dots$). Al tener tamaño 1, cada raíz genera de forma aislada un polinomio mínimo irreducible de grado 1 en la extensión.
+
+Para construir un polinomio generador de grado 4 que actúe como raíz universal de la estructura matricial de evaluación, seleccionamos la racha fundamental de las 4 raíces consecutivas esenciales del código: $\{\alpha^1, \alpha^2, \alpha^3, \alpha^4\}$. El polinomio generador mónico se define expandiendo el producto de estos factores lineales directos:
+\[ g(X) = (X - \alpha)(X - \alpha^2)(X - \alpha^3)(X - \alpha^4) \]
+
+Efectuamos el producto por parejas ordenadas bajo leyes de \textbf{característica 2} (donde las operaciones de suma y resta son idénticas bajo XOR, por lo que $+ = -$, y los términos duplicados se destruyen automáticamente $x + x = 0$):
+
+1. \textbf{Multiplicación del primer bloque binómico:}
+   \[ (X + \alpha)(X + \alpha^2) = X^2 + (\alpha + \alpha^2)X + \alpha^3 \]
+   Sabiendo que la potencia cuarta es $\alpha^4 = \alpha \cdot \alpha^3 = \alpha(\alpha + 1) = \alpha^2 + \alpha$, sustituimos el término central $(\alpha + \alpha^2) = \alpha^4$:
+   \[ \text{Bloque 1} = X^2 + \alpha^4X + \alpha^3 \]
+
+2. \textbf{Multiplicación del segundo bloque binómico:}
+   \[ (X + \alpha^3)(X + \alpha^4) = X^2 + (\alpha^3 + \alpha^4)X + \alpha^7 \]
+   Sustituimos el valor unitario $\alpha^7 = 1$ y reducimos el coeficiente central usando las bases lineales lineales: $\alpha^3 + \alpha^4 = (\alpha + 1) + (\alpha^2 + \alpha) = \alpha^2 + 1 = \alpha^6$:
+   \[ \text{Bloque 2} = X^2 + \alpha^6X + 1 \]
+
+3. \textbf{Multiplicación cruzada de ambos bloques cuadráticos:}
+   \[ g(X) = (X^2 + \alpha^4X + \alpha^3)(X^2 + \alpha^6X + 1) \]
+   Expandiendo de forma literal término a término y agrupando los coeficientes resultantes según el grado algebraico de la variable $X$, obtenemos la expresión exacta:
+   \[ g(X) = X^4 + (\alpha^4 + \alpha^3 + \alpha^2 + \alpha)X^3 + (\alpha^6 + \alpha^4 + \alpha^3 + 1)X^2 + (\alpha^6 + \alpha^2 + \alpha + 1)X + \alpha^3 \]
+
+Finalmente, simplificamos cada una de las cajas de coeficientes aplicando el polinomio irreducible del cuerpo $\alpha^3 = \alpha + 1$, junto con sus potencias asociadas $\alpha^4 = \alpha^2 + \alpha$ y $\alpha^6 = \alpha^2 + 1$:
+\begin{itemize}
+    \item \textbf{Coeficiente de $X^3$:} $(\alpha^2 + \alpha) + (\alpha + 1) + \alpha^2 + \alpha$. Contamos apariciones: $\alpha^2$ aparece 2 veces ($\to 0$); $\alpha$ aparece 3 veces ($\to \alpha$); $1$ aparece 1 vez ($\to 1$). Nos sobrevive $\alpha + 1$, que equivale exactamente a $\mathbf{\alpha^3}$.
+    \item \textbf{Coeficiente de $X^2$:} $(\alpha^2 + 1) + (\alpha^2 + \alpha) + (\alpha + 1) + 1$. Contamos apariciones: $\alpha^2$ aparece 2 veces ($\to 0$); $\alpha$ aparece 2 veces ($\to 0$); $1$ aparece 4 veces ($\to 0$). El coeficiente se anula por completo y se simplifica a $\mathbf{1}$.
+    \item \textbf{Coeficiente de $X^1$:} $(\alpha^2 + 1) + \alpha^2 + \alpha + 1$. Contamos apariciones: $\alpha^2$ aparece 2 veces ($\to 0$); $1$ aparece 2 veces ($\to 0$); $\alpha$ aparece 1 vez ($\to \alpha$). Nos queda únicamente $\mathbf{\alpha}$.
+\end{itemize}
+
+Sustituyendo cada coeficiente limpio en su posición correspondiente, determinamos de forma unívoca que el polinomio generador definitivo del código es:
+\[ \mathbf{g(X) = X^4 + \alpha^3X^3 + X^2 + \alpha X + \alpha^3} \]
+
+
+
+
+\newpage
+\subsubsection{4. Ampliación Teórica: Restricción de Coeficientes y el Efecto Dominó de la Asignación}
+
+\textbf{El problema de la raíz aislada \texorpdfstring{$\alpha$}{alpha}:}\\
+Por el Teorema Fundamental del Álgebra, en el cuerpo de escisión superior $\mathbb{F}_{16}$ el binomio $X^{15}-1$ descompone por completo de forma ideal en 15 factores lineales de la forma $(X - \alpha^i)$, donde $\alpha$ es un elemento primitivo del cuerpo. Sin embargo, si intentáramos definir el polinomio mínimo de la primera raíz de forma aislada como $m_1(X) = X - \alpha$, estaríamos cometiendo un error conceptual grave. Dado que $\alpha \in \mathbb{F}_{16}$ pero $\alpha \notin \mathbb{F}_2$, el polinomio $(X - \alpha)$ \textbf{no pertenece al anillo $\mathbb{F}_2[X]$} porque sus coeficientes no son binarios. 
+
+Para obligar a que los coeficientes sean estrictamente ceros y unos, la teoría de Galois exige agrupar las raíces por órbitas de elementos conjugados mediante el automorfismo de Frobenius $\sigma(x) = x^2$. Al multiplicar los factores lineales de todo un coset completo, por ejemplo $C_1 = \{1, 2, 4, 8\}$:
+\[ m_1(X) = (X - \alpha)(X - \alpha^2)(X - \alpha^4)(X - \alpha^8) \]
+todas las potencias complejas de $\alpha$ se cancelan y se masacran entre sí en los productos y sumas cruzados debido a las propiedades de la característica 2 ($x+x=0$), haciendo colapsar el resultado de forma obligatoria en un polinomio limpio con coeficientes en el cuerpo base: $X^4 + X + 1 \in \mathbb{F}_2[X]$.
+
+\textbf{El efecto vinculante de la asignación (Efecto Dominó):}\\
+La necesidad de emparejar un coset con un polinomio específico es crítica y rígidamente vinculante en cuanto deseamos operar analíticamente en la extensión o diseñar un código corrector (como un BCH). 
+
+Al fundar el cuerpo, tenemos la libertad inicial de decretar que el coset principal $C_1$ (que contiene a la raíz primitiva $\alpha^1$) se corresponde con el polinomio primitivo $X^4 + X + 1$. Al hacer esto, fijamos por definición la regla aritmética estructural de todo el espacio: $\alpha^4 + \alpha + 1 = 0 \implies \mathbf{\alpha^4 = \alpha + 1}$. 
+
+A partir de ese instante se desata un ``efecto dominó'': las raíces de los cosets restantes son potencias directas de ese $\alpha$ ya bautizado, por lo que perdemos por completo la libertad de asignarlos al azar. Sus polinomios mínimos quedan forzados matemática y unívocamente por la regla recién impuesta:
+\begin{itemize}
+    \item \textbf{El coset $\mathbf{C_3 = \{3, 6, 12, 9\}}$:} Su polinomio mínimo $m_3(X)$ tiene por raíces a la órbita de $\alpha^3$. Como el elemento primitivo $\alpha$ tiene orden $15$, la raíz $\beta = \alpha^3$ posee un orden exacto de $15/3 = 5$. Al tener orden 5, $\beta$ cumple que $\beta^5 = 1$, lo que significa que es obligatoriamente una raíz del polinomio $X^5 - 1$ (que en característica 2 es equivalente a $X^5 + 1$). Si extraemos la raíz trivial $X=1$, este binomio se factoriza algebraicamente como $X^5 + 1 = (X+1)(X^4 + X^3 + X^2 + X + 1)$. Como $\beta \neq 1$, es imposible que anule al primer factor $(X+1)$, por lo que debe anular forzosamente al segundo. Siendo este factor de grado 4 irreducible sobre $\mathbb{F}_2$, concluimos de forma directa y rigurosa que $\mathbf{m_3(X) = X^4 + X^3 + X^2 + X + 1}$.
+    \item \textbf{El coset $\mathbf{C_7 = \{7, 14, 13, 11\}}$:} Su polinomio mínimo $m_7(X)$ tiene por raíces a la órbita de $\alpha^7$. Al tener orden 15, se trata de una raíz primitiva. Por eliminación directa frente a los irreducibles de grado 4 disponibles, el producto de sus factores conjugados colapsará unívocamente en el polinomio restante: $\mathbf{m_7(X) = X^4 + X^3 + 1}$.
+\end{itemize}
+De esta forma, la elección del polinomio de la clase principal actúa como el código genético de toda la extensión, determinando de forma automática el reparto del resto de polinomios.
+
+\newpage
+
 \section{Tema 9: Códigos BCH (Bose-Chaudhuri-Hocquenghem)}
 Definición de códigos BCH, diseño por raíces consecutivas, relación estructural con códigos cíclicos, el conjunto total de raíces y la mini matriz de Vandermonde, cota fundamental y algoritmos de descodificación PGZ, Berlekamp-Massey y Euclides.\\
 Bibliografía:
