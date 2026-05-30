@@ -1006,6 +1006,21 @@ h_k & h_{k-1} & \dots & h_0 & 0 & \dots & 0 \\
 \]
 Esta disposición garantiza matemáticamente que $G \cdot H^T = 0$, permitiendo verificar de forma eficiente la integridad de los vectores recibidos.
 
+\subsubsection{8.2.4 Polinomio Generador del Código Dual $C^\perp$}
+Todo código cíclico $C$ de longitud $n$ y dimensión $k$ posee un código dual $C^\perp$ de dimensión $n-k$ que también mantiene la estructura de código cíclico. El polinomio generador de este código dual, denotado como $g^\perp(x)$, se deriva directamente del polinomio de control $h(x)$ de $C$, pero requiere aplicar una transformación algebraica conocida como el \textbf{polinomio recíproco}.
+
+El procedimiento constructivo consta de tres pasos matemáticos:
+\begin{enumerate}
+    \item \textbf{Cálculo del polinomio de control:} Se obtiene mediante la división exacta en el anillo del cuerpo base: $h(x) = \frac{x^n - 1}{g(x)}$. Su grado es $k$.
+    \item \textbf{Inversión de coeficientes (Polinomio Recíproco):} Se define el polinomio recíproco $h^*(x)$ sustituyendo la variable $x$ por $x^{-1}$ y multiplicando por $x^k$ para reestructurar las potencias:
+    \[ h^*(x) = x^k h(x^{-1}) \]
+    Desde un punto de vista práctico, esta operación equivale geométricamente a \textbf{escribir los coeficientes de $h(x)$ en estricto orden inverso}.
+    \item \textbf{Ajuste Mónico:} Por definición, todo polinomio generador de un ideal debe ser estrictamente mónico (el coeficiente de su mayor potencia debe ser 1). Al invertir el polinomio en el paso anterior, el término independiente $h_0$ de $h(x)$ se convierte en el nuevo coeficiente principal. Para normalizar el resultado, se multiplica todo el polinomio por el inverso multiplicativo de $h_0$ en el cuerpo $\mathbb{F}_q$:
+    \[ g^\perp(x) = h_0^{-1} \cdot h^*(x) \]
+\end{enumerate}
+
+\textbf{Nota para códigos binarios:} Al trabajar sobre el cuerpo $\mathbb{F}_2$, dado que el término independiente de un polinomio válido siempre es 1 (para evitar la raíz 0), su inverso multiplicativo es trivialmente 1. Por tanto, el ajuste mónico es automático y el generador del dual es directamente el polinomio con los coeficientes de $h(x)$ leídos al revés: $g^\perp(x) = x^k h(x^{-1})$.
+
 \subsection{8.3 Factorización de $x^n-1$ y la Distinción de Cuerpos (Base vs. Extensión)}
 
 Para analizar la estructura de un código cíclico de longitud $n$ sobre un cuerpo base $\mathbb{F}_q$, es imperativo estudiar las raíces del polinomio $x^n - 1$. Sin embargo, por lo general, dichas raíces no existen en el cuerpo base $\mathbb{F}_q$. Es necesario realizar una extensión algebraica hacia un cuerpo superior, denominado \textbf{cuerpo de descomposición} o \textit{splitting field}, denotado como $\mathbb{F}_{q^m}$.
